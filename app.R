@@ -31,19 +31,18 @@ ui <- page_fillable(
     
     # Header ----
     layout_columns(
-        col_widths = c(8, 4),
+        col_widths = c(8, 4, 4),
         fill = FALSE,
         
         # Header, github link, description
         div(
             # Header + GitHub link
-            # modify h3 and github link for new dashboards
             div(
                 style = "display: flex; justify-content: space-between; align-items: center;",
-                h3("NERRS Monitoring: PARAMETER HERE"),
+                h3("NERRS Monitoring: Marsh Surface Elevation"),
                 tags$a(
                     icon("github"), 
-                    href = "https://github.com/nerrscdmo/dashboard-template", 
+                    href = "https://github.com/nerrscdmo/set-dashboard", 
                     target = "_blank", 
                     style = "color: inherit;"
                 )
@@ -51,13 +50,23 @@ ui <- page_fillable(
             
             # Description
             # modify this for each parameter
-            p("Choose a tab to explore PARAMETER nationally. Change options in the left sidebar, and click on a station to see more detail in a right sidebar.")
+            p("Choose a tab to explore marsh surface elevation change nationally. Change options in the left sidebar, and click on a station to see more detail in a right sidebar.")
         ),
         
         # Value box
         value_box(
-            title = "VALUE BOX TITLE",
+            title = "# SETs keeping up with SLR",
             value = textOutput("station_count"),
+            showcase = bsicons::bs_icon("graph-up-arrow"),
+            showcase_layout = "left center",
+            theme = "success",
+            max_height = "120px"
+        ),
+        
+        # Value box 2
+        value_box(
+            title = "# SETs not keeping up with SLR",
+            value = textOutput("station_count2"),
             showcase = bsicons::bs_icon("graph-down-arrow"),
             showcase_layout = "left center",
             theme = "danger",
@@ -83,10 +92,11 @@ ui <- page_fillable(
         # map tabs ----
         # panel 1: map 1 ----
         nav_panel(
-            "PANEL 1",
+            "Reserve-level",
+            # in this panel, show pie charts by reserve
             full_screen = TRUE,
             
-            card_header("HEADER 1",
+            card_header("What is the split of SETs keeping up vs. not, by Reserve?",
                         tooltip(
                             bsicons::bs_icon("info-circle"),
                             "Information about calculation of what is shown on the map."
@@ -144,10 +154,11 @@ ui <- page_fillable(
         
         # panel 2: map 2 ----
         nav_panel(
-            "PANEL 2",
+            "SET-level",
+            # show all SETs here, with the up/down arrows
             full_screen = TRUE,
             
-            card_header("HEADER 2",
+            card_header("How is elevation change spread within a reserve? (Zoom in!)",
                         tooltip(
                             bsicons::bs_icon("info-circle"),
                             "Info about what is on the map"
@@ -225,6 +236,7 @@ server <- function(input, output, session) {
     )
     
     # map1 setup----
+    # map1 is the pie charts - reserve level
     output$map1 <- renderLeaflet({
         # base map
         m <- leaflet() |> 
@@ -246,6 +258,7 @@ server <- function(input, output, session) {
     })
     
     # map2 setup----
+    # map 2 is SET-level - up and down arrows etc.
     output$map2 <- renderLeaflet({
         # base map
         m <- leaflet() |> 
@@ -490,6 +503,11 @@ server <- function(input, output, session) {
     
     # value box ----
     output$station_count <- renderText({
+        # calculate something here to show in the value box
+    })
+    
+    # value box 2----
+    output$station_count2 <- renderText({
         # calculate something here to show in the value box
     })
     
