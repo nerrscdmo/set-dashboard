@@ -1,0 +1,85 @@
+/* Header spacing */
+h5 {
+  margin-bottom: 4px !important; 
+}
+
+/* Gaps */
+.bslib-page-fill {
+  gap: 0.25rem !important;        /* Reduce overall spacing */
+  row-gap: 0.25rem !important;    /* Specifically reduce vertical spacing */
+}
+
+/* Other gaps */
+.bslib-gap-spacing {
+    gap: 0.5rem !important;
+    row-gap: 0.25rem !important;
+}
+
+.sidebar .bslib-gap-spacing {
+    gap: 0.75rem !important;
+}
+
+
+/* Add extra space around the "Select Year" slider */
+.highlight-slider {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Main input labels - 14px */
+.shiny-input-container > label,  /* Main labels */
+.form-label { 
+    font-size: 14px !important;
+}
+
+p {
+    font-size: 14px !important;
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
+}
+
+.accordion-button {
+    font-size: 14px !important;
+    color: blue;
+}
+
+/* Option text - 12px */
+.form-check-label,
+div.shiny-options-group label,  /* Radio and checkbox group options */
+.radio label,
+.checkbox label {
+    font-size: 14px !important;
+}
+
+/* Style for two-column checkbox group */
+.two-col-checks .form-check {
+    display: inline-block;
+    width: 50%;
+}
+
+/* Slider text */
+.irs-grid-text, .irs-min, .irs-max, .irs-single, .irs-from, .irs-to {
+    font-size: 12px !important;
+}
+
+/* Slider bar styles */
+.irs-bar {
+    height: 0px !important;
+    border: 0px solid #444444 !important;
+    background: #444444 !important;
+}
+.irs-bar-edge {
+    display: none !important;
+}
+.irs-line {
+    height: 2px !important;
+    border: 0px solid transparent !important;
+    background: #444444 !important;
+}
+.irs-slider {
+    border: 1px solid #aaa !important;
+    background: #fff !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 50%;
+}
