@@ -11,6 +11,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(waiter)
+library(glue)
 # library(SETr)
 
 
@@ -32,7 +33,7 @@ ui <- page_fillable(
     
     # Header ----
     layout_columns(
-        col_widths = c(8, 4, 4),
+        col_widths = c(6, 3, 3),
         fill = FALSE,
         
         # Header, github link, description
@@ -254,6 +255,7 @@ server <- function(input, output, session) {
                 data = reserve_mappiness,
                 lng = ~lon,
                 lat = ~lat,
+                layerId = ~reserve,
                 icon = ~icons(iconUrl = pie_longterm,
                               iconWidth = 40,
                               iconHeight = 40) 
@@ -290,6 +292,7 @@ server <- function(input, output, session) {
                 data = set_details,
                 lng = ~long,
                 lat = ~lat,
+                layerId = ~set_id,
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(dir_slr),
@@ -311,6 +314,11 @@ server <- function(input, output, session) {
     # map1 update ----
     observe({
         
+        # waiter show ----
+        # spinner while everything is recalculating
+        w$show()
+        on.exit(w$hide())
+        
         comparison <- input$panel1Param_sel
         comp_dat <- reserve_mappiness |> 
             mutate(iconURL = case_when(comparison == "longterm" ~ pie_longterm,
@@ -328,6 +336,7 @@ server <- function(input, output, session) {
                 data = comp_dat,
                 lng = ~lon,
                 lat = ~lat,
+                layerId = ~reserve,
                 icon = ~icons(iconUrl = iconURL,
                               iconWidth = 40,
                               iconHeight = 40) 
@@ -346,6 +355,12 @@ server <- function(input, output, session) {
     # map2 update ----
     observe({
         
+        # waiter show ----
+        # spinner while everything is recalculating
+        w$show()
+        on.exit(w$hide())
+        
+        
         comparison <- input$panel2Param_sel
         comp_dat <- set_details |> 
             mutate(outcome = case_when(comparison == "longterm" ~ dir_slr,
@@ -363,6 +378,7 @@ server <- function(input, output, session) {
                 data = comp_dat,
                 lng = ~long,
                 lat = ~lat,
+                layerId = ~set_id,
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(outcome),
@@ -386,7 +402,7 @@ server <- function(input, output, session) {
     # Add click observers to all maps
     observeEvent(input$map1_marker_click, {
         click <- input$map1_marker_click
-        
+
         # waiter show ----
         w$show()
         on.exit(w$hide())
@@ -407,7 +423,8 @@ server <- function(input, output, session) {
         
         
         station_id <- click$id
-        selected_station(station_id)
+        reserve <- set_details[which(set_details$set_id == station_id), "reserve"] 
+        selected_station(reserve)
         # Open the sidebar when a station is clicked
         sidebar_toggle("stn_sidebar", open = TRUE)
         
@@ -431,13 +448,12 @@ server <- function(input, output, session) {
     output$reserve_info <- renderText({
         req(selected_station())
         
-        res_inf <- stn_summaries |> 
-            filter(station == selected_station()) |> 
-            select(station, StationName, ReserveCode, ReserveName, ReserveState, ReserveWebsite, NERRAPage) |> 
+        res_inf <- reserve_details |> 
+            filter(ReserveCode == selected_station()) |> 
             distinct()
         
         res_out <- res_inf |> 
-            glue_data("<b>{station}</b> is the {StationName} monitoring station at {ReserveName} ({ReserveCode}) NERR in {ReserveState}. 
+            glue_data("<b>{ReserveCode}</b> is {ReserveName} NERR in {ReserveState}. 
                       For more information about the reserve, please visit <a href='{ReserveWebsite}' target='_blank'>their website</a>.")
         
         HTML(res_out)
@@ -461,18 +477,21 @@ server <- function(input, output, session) {
     # station sidebar ui ----
     # with accordion
     output$station_section <- renderUI({
-        req(selected_station())
+        # req(selected_station())
         
         accordion(
             id = "station_accordion",
             open = FALSE,
             
-            h4(paste0("Selected Station: ", selected_station())),
+            h5("There will be reserve and/or SET information in this sidebar"),
+            p("at some point"),
             
+            h4(paste0("Selected Reserve: ", selected_station())),
+
             htmlOutput("reserve_info"),
             br(),
             br(),
-            
+
             span("Station details:",
                  tooltip(
                      bsicons::bs_icon("info-circle"),
@@ -480,27 +499,27 @@ server <- function(input, output, session) {
                     <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
                  )),
             br(),
-            
-            
+
+
             # numeric outputs
             accordion_panel(
                 title = "Numeric Summary",
                 reactableOutput("stn_tbl")
             ),
-            
+
             # Plotly graph, with accordioned options
             accordion_panel(
                 title = "Time Series Graphs",
                 tags$small("The graph section can be popped out to full screen from the bottom right corner."),
-                
+
                 card(
                     full_screen = TRUE,
                     height = "50vh",
-                    
-                    
+
+
                     # options popover
                     popover(
-                        actionButton("btn", "Graph options", 
+                        actionButton("btn", "Graph options",
                                      icon = icon("sliders"),
                                      width = 200,
                                      class = "small-btn"),
@@ -516,7 +535,7 @@ server <- function(input, output, session) {
                         title = "Graph Options",
                         placement = "right"
                     ),
-                    
+
                     # graph
                     withWaiter(plotlyOutput("stn_timeSeries"))
                 )
