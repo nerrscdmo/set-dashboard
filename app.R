@@ -257,8 +257,8 @@ server <- function(input, output, session) {
                 lat = ~lat,
                 layerId = ~reserve,
                 icon = ~icons(iconUrl = pie_longterm,
-                              iconWidth = 40,
-                              iconHeight = 40) 
+                              iconWidth = 30,
+                              iconHeight = 30) 
             ) |> 
             addLegend(colors = cols_slr,
                       labels = names(cols_slr),
@@ -296,8 +296,8 @@ server <- function(input, output, session) {
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(dir_slr),
-                fillOpacity = 0.7,
-                radius = 6
+                fillOpacity = 0.5,
+                radius = 8
             ) |> 
             addLegend(colors = cols_slr,
                       labels = names(cols_slr),
@@ -338,8 +338,8 @@ server <- function(input, output, session) {
                 lat = ~lat,
                 layerId = ~reserve,
                 icon = ~icons(iconUrl = iconURL,
-                              iconWidth = 40,
-                              iconHeight = 40) 
+                              iconWidth = 30,
+                              iconHeight = 30) 
             ) |> 
             addLegend(colors = cols_slr,
                       labels = names(cols_slr),
@@ -382,8 +382,8 @@ server <- function(input, output, session) {
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(outcome),
-                fillOpacity = 0.7,
-                radius = 6
+                fillOpacity = 0.5,
+                radius = 8
             ) |> 
             addLegend(colors = cols_slr,
                       labels = names(cols_slr),
