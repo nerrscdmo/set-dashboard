@@ -176,19 +176,17 @@ ui <- page_fillable(
                     open = TRUE,
                     
                     div(
-                        "Select OPTION to view: ",
+                        "Compare SETs to: ",
                         tooltip(
                             bsicons::bs_icon("info-circle"),
                             "Info about options."
                         ),
                         radioButtons("panel2Param_sel", label = NULL,
-                                     choiceNames = c("Option 1",
-                                                     "Option 2",
-                                                     "Option 3"),
-                                     choiceValues = c("opt1",
-                                                      "opt2",
-                                                      "opt3"),
-                                     selected = "opt1")
+                                     choiceNames = c("Long-term sea level rise",
+                                                     "19-year water level change"),
+                                     choiceValues = c("longterm",
+                                                      "yr19"),
+                                     selected = "longterm")
                     ),
                     
                     
@@ -272,7 +270,7 @@ server <- function(input, output, session) {
     })
     
     # map2 setup----
-    # map 2 is SET-level - up and down arrows etc.
+    # map 2 is SET-level 
     output$map2 <- renderLeaflet({
         # base map
         m <- leaflet() |> 
@@ -286,7 +284,23 @@ server <- function(input, output, session) {
                                             "Positron (CartoDB)",
                                             "Esri"))
         
-        # in reality, add data, markers, and legends too
+        # generate it with the longterm comparison
+        m <- m |> 
+            addCircleMarkers(
+                data = set_details,
+                lng = ~long,
+                lat = ~lat,
+                color = "black",
+                weight = 1,
+                fillColor = ~leaflet_colors(dir_slr),
+                fillOpacity = 0.7,
+                radius = 6
+            ) |> 
+            addLegend(colors = cols_slr,
+                      labels = names(cols_slr),
+                      position = "bottomleft",
+                      opacity = 0.9,
+                      title = "Are marshes keeping up with <br>long-term sea level rise?")    
         
         # return the map
         m
@@ -330,41 +344,40 @@ server <- function(input, output, session) {
     
     
     # map2 update ----
-    # observe({
-    #     # filter the dataset based on user selections
-    #     
-    #     # see if a station has been selected
-    #     current_station_id <- selected_station()
-    #     
-    #     # if no station selected, normal map:
-    #     if(is.null(current_station_id)){
-    #         
-    #         m <- leafletProxy("map2", data = FILTERED_DATA_ABOVE) |>
-    #             clearMarkers() |>
-    #             addCircleMarkers(
-    #                 # stuff here
-    #             )  |>
-    #             clearControls()
-    #         
-    #     } else {
-    #         # make the selected station stand out
-    #         m <- leafletProxy("map2", data = FILTERED_DATA_ABOVE) |>
-    #             clearMarkers() |>
-    #             addCircleMarkers(
-    #                 # stuff
-    #                 # outline the point and make it heavier
-    #                 color = ~ifelse(station == current_station_id, "#E67E22", "black"),
-    #                 weight = ~ifelse(station == current_station_id, 4, 1),
-    #                 # other point control stuff
-    #             )  |>
-    #             clearControls()
-    #     }
-    #     
-    #     # do some other things here based on parameter inputs (make correct legends)
-    #     
-    #     m
-    #     
-    # })
+    observe({
+        
+        comparison <- input$panel2Param_sel
+        comp_dat <- set_details |> 
+            mutate(outcome = case_when(comparison == "longterm" ~ dir_slr,
+                                       comparison == "yr19" ~ dir_19yr))
+        
+        legendtitle <- ifelse(comparison == "longterm",
+                              "Are marshes keeping up with <br>long-term sea level rise?",
+                              "Are marshes keeping up with <br>the rate of water level change <br>over the last 19 years?")
+        
+        
+        m <- leafletProxy("map2") |> 
+            clearMarkers() |> 
+            clearControls() |> 
+            addCircleMarkers(
+                data = comp_dat,
+                lng = ~long,
+                lat = ~lat,
+                color = "black",
+                weight = 1,
+                fillColor = ~leaflet_colors(outcome),
+                fillOpacity = 0.7,
+                radius = 6
+            ) |> 
+            addLegend(colors = cols_slr,
+                      labels = names(cols_slr),
+                      position = "bottomleft",
+                      opacity = 0.9,
+                      title = legendtitle)
+        
+        m
+
+    })
     
     # map clicks ----
     # Create reactive value to store selected station
