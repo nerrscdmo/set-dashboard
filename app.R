@@ -504,7 +504,8 @@ server <- function(input, output, session) {
             # numeric outputs
             accordion_panel(
                 title = "Numeric Summary",
-                reactableOutput("stn_tbl")
+                # reactableOutput("stn_tbl")
+                p("There will be a table here")
             ),
 
             # Plotly graph, with accordioned options
@@ -537,7 +538,8 @@ server <- function(input, output, session) {
                     ),
 
                     # graph
-                    withWaiter(plotlyOutput("stn_timeSeries"))
+                    # withWaiter(plotlyOutput("stn_timeSeries"))
+                    p("There will be a graph here")
                 )
             )
         )
