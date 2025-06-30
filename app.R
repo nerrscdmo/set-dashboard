@@ -444,7 +444,13 @@ server <- function(input, output, session) {
     })
     
     
-    # reserve info ----
+    # reserve list subsetting ----
+    selected_reserve <- reactive({
+        req(selected_station())
+        reserves_sets_list[[selected_station()]]
+    })
+    
+    # summary statement ----
     output$reserve_info <- renderText({
         req(selected_station())
         
@@ -452,12 +458,80 @@ server <- function(input, output, session) {
             filter(ReserveCode == selected_station()) |> 
             distinct()
         
+        # n_sets <- reserves_sets_list[[selected_station()]]$total$n
+        n_sets <- selected_reserve()$total$n
+        
         res_out <- res_inf |> 
             glue_data("<b>{ReserveCode}</b> is {ReserveName} NERR in {ReserveState}. 
-                      For more information about the reserve, please visit <a href='{ReserveWebsite}' target='_blank'>their website</a>.")
+            This reserve monitors <b>{n_sets} stations</b>; expand the sections below for more detail. <br><br>
+            For more information about the reserve, please visit <a href='{ReserveWebsite}' target='_blank'>their website</a>.")
         
         HTML(res_out)
     })
+    
+    # SET summaries ----
+    # dates installed
+    output$sets_installed <- renderReactable({
+        req(selected_reserve())
+        
+        selected_reserve()$installations |> 
+            select(-reserve) |> 
+            arrange(start_year) |> 
+            reactable(
+                columns = list(
+                    start_year = colDef(name = "Year"),
+                    n = colDef(name = "# SETs with first reading")
+                )
+            )
+    })
+    
+    
+    # SET types
+    output$sets_types <- renderReactable({
+        req(selected_reserve())
+        
+        selected_reserve()$types |> 
+            select(-reserve) |> 
+            arrange(set_type) |> 
+            reactable(
+                columns = list(
+                    set_type = colDef(name = "SET type"),
+                    n = colDef(name = "# monitored")
+                )
+            )
+    })
+    
+    
+    # dominant veg types
+    output$sets_vegs <- renderReactable({
+        req(selected_reserve())
+        
+        selected_reserve()$vegs |> 
+            select(-reserve) |> 
+            arrange(dominant_vegetation) |> 
+            reactable(
+                columns = list(
+                    dominant_vegetation = colDef(name = "Dominant vegetation type(s)"),
+                    n = colDef(name = "# SETs in this setting")
+                )
+            )
+    })
+    
+    
+    # salinities
+    output$sets_salinities <- renderReactable({
+        req(selected_reserve())
+        
+        selected_reserve()$salinities |> 
+            select(-reserve) |> 
+            reactable(
+                columns = list(
+                    general_salinity = colDef(name = "General salinity regime"),
+                    n = colDef(name = "# SETs in this setting")
+                )
+            )
+    })
+    
     
     
     # station table ----
@@ -483,16 +557,13 @@ server <- function(input, output, session) {
             id = "station_accordion",
             open = FALSE,
             
-            h5("There will be reserve and/or SET information in this sidebar"),
-            p("at some point"),
-            
             h4(paste0("Selected Reserve: ", selected_station())),
 
             htmlOutput("reserve_info"),
             br(),
             br(),
 
-            span("Station details:",
+            span(strong("More details about SETs at this reserve:"),
                  tooltip(
                      bsicons::bs_icon("info-circle"),
                      HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
@@ -501,11 +572,28 @@ server <- function(input, output, session) {
             br(),
 
 
-            # numeric outputs
+            # SET types
             accordion_panel(
-                title = "Numeric Summary",
-                # reactableOutput("stn_tbl")
-                p("There will be a table here")
+                title = "Types of SETs monitored",
+                reactableOutput("sets_types")
+            ),
+            
+            # when installed/first read
+            accordion_panel(
+                title = "Installation Dates",
+                reactableOutput("sets_installed")
+            ),
+            
+            # dominant vegetation
+            accordion_panel(
+                title = "Surrounding Vegetation",
+                reactableOutput("sets_vegs")
+            ),
+            
+            # general salinity
+            accordion_panel(
+                title = "Salinity Regime(s)",
+                reactableOutput("sets_salinities")
             ),
 
             # Plotly graph, with accordioned options
@@ -539,7 +627,7 @@ server <- function(input, output, session) {
 
                     # graph
                     # withWaiter(plotlyOutput("stn_timeSeries"))
-                    p("There will be a graph here")
+                    p("There might be a graph here")
                 )
             )
         )

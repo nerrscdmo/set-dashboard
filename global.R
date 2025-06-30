@@ -37,3 +37,5 @@ reserve_mappiness <- set_details |>
                                                                     "_longterm.svg")),
            pie_19yr = file.path("images", "pie_charts", paste0(reserve,
                                                                "_19yr.svg")))
+
+
