@@ -17,15 +17,16 @@ reserve_sets <- reserve_sets |>
                             labels = c("No, more confident", "No, less confident", "Not enough info",
                                        "Yes, less confident", "Yes, more confident")))
 
-set_details <- set_details |> 
-    mutate(dir_19yr = factor(dir_19yr, 
-                            levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
-                            labels = c("No, more confident", "No, less confident", "Not enough info",
-                                       "Yes, less confident", "Yes, more confident")),
-           dir_slr = factor(dir_slr, 
-                            levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
-                            labels = c("No, more confident", "No, less confident", "Not enough info",
-                                       "Yes, less confident", "Yes, more confident")))
+# this is now done in processing step
+# set_details <- set_details |>
+#     mutate(dir_19yr = factor(dir_19yr,
+#                             levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
+#                             labels = c("No, more confident", "No, less confident", "Not enough info",
+#                                        "Yes, less confident", "Yes, more confident")),
+#            dir_slr = factor(dir_slr,
+#                             levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
+#                             labels = c("No, more confident", "No, less confident", "Not enough info",
+#                                        "Yes, less confident", "Yes, more confident")))
 
 
 # set up central coordinates and file paths for reserves ----
