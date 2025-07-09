@@ -89,14 +89,14 @@ ui <- page_fillable(
                           uiOutput("reserve_section")
         ),
         
-        # sidebar: station info ----
-        sidebar = sidebar(id = "station_sidebar",
-                          position = "right",
-                          width = "50%",
-                          height = "90vh",
-                          open = FALSE,
-                          uiOutput("station_section")
-        ),
+        # # sidebar: station info ----
+        # sidebar = sidebar(id = "station_sidebar",
+        #                   position = "right",
+        #                   width = "50%",
+        #                   height = "90vh",
+        #                   open = FALSE,
+        #                   uiOutput("station_section")
+        # ),
         
         
         
@@ -439,7 +439,7 @@ server <- function(input, output, session) {
         selected_reserve(reserve)
         selected_station(station_id)
         # Open the sidebar when a station is clicked
-        sidebar_toggle("station_sidebar", open = TRUE)
+        sidebar_toggle("reserve_sidebar", open = TRUE)
         
     })
     
