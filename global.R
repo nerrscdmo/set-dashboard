@@ -39,4 +39,6 @@ reserve_mappiness <- set_details |>
            pie_19yr = file.path("images", "pie_charts", paste0(reserve,
                                                                "_19yr.svg")))
 
+set_details <- set_details |> 
+    mutate(Res_SET = paste(reserve, set_id, sep = "_"))
 

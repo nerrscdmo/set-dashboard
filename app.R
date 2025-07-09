@@ -80,8 +80,17 @@ ui <- page_fillable(
     navset_card_tab(
         full_screen = TRUE,
         
-        # sidebar: stn info ----
-        sidebar = sidebar(id = "stn_sidebar",
+        # sidebar: reserve info ----
+        sidebar = sidebar(id = "reserve_sidebar",
+                          position = "right",
+                          width = "50%",
+                          height = "90vh",
+                          open = FALSE,
+                          uiOutput("reserve_section")
+        ),
+        
+        # sidebar: station info ----
+        sidebar = sidebar(id = "station_sidebar",
                           position = "right",
                           width = "50%",
                           height = "90vh",
@@ -92,7 +101,7 @@ ui <- page_fillable(
         
         
         # map tabs ----
-        # panel 1: map 1 ----
+        # panel 1: pie chart map ----
         nav_panel(
             "Reserve-level",
             # in this panel, show pie charts by reserve
@@ -128,21 +137,9 @@ ui <- page_fillable(
                                      choiceValues = c("longterm",
                                                       "yr19"),
                                      selected = "longterm")
-                    ),
-                    
-                    # choose which values to see
-                    div(class = "two-col-checks",
-                        checkboxGroupInput("trendShow_sel", "Select results to include:",
-                                           choices = c("increasing",
-                                                       "decreasing",
-                                                       "no trend",
-                                                       "not calculated"),
-                                           selected = c("increasing",
-                                                        "decreasing",
-                                                        "no trend",
-                                                        "not calculated"),
-                                           inline = TRUE)
                     )
+                    
+                    
                 ), # end sidebar
                 
                 # map
@@ -152,7 +149,7 @@ ui <- page_fillable(
             
         ), # end nav panel 1
         
-        # panel 2: map 2 ----
+        # panel 2: SET-level ----
         nav_panel(
             "SET-level",
             # show all SETs here, with the up/down arrows
@@ -189,6 +186,20 @@ ui <- page_fillable(
                                                       "yr19"),
                                      selected = "longterm")
                     ),
+                    
+                    # choose which values to see
+                    # div(class = "two-col-checks",
+                    #     checkboxGroupInput("trendShow_sel", "Select results to include:",
+                    #                        choices = c("increasing",
+                    #                                    "decreasing",
+                    #                                    "no trend",
+                    #                                    "not calculated"),
+                    #                        selected = c("increasing",
+                    #                                     "decreasing",
+                    #                                     "no trend",
+                    #                                     "not calculated"),
+                    #                        inline = TRUE)
+                    # )
                     
                     
                 ), # end sidebar
@@ -292,7 +303,7 @@ server <- function(input, output, session) {
                 data = set_details,
                 lng = ~long,
                 lat = ~lat,
-                layerId = ~set_id,
+                layerId = ~Res_SET,
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(dir_slr),
@@ -378,7 +389,7 @@ server <- function(input, output, session) {
                 data = comp_dat,
                 lng = ~long,
                 lat = ~lat,
-                layerId = ~set_id,
+                layerId = ~Res_SET,
                 color = "black",
                 weight = 1,
                 fillColor = ~leaflet_colors(outcome),
@@ -396,7 +407,8 @@ server <- function(input, output, session) {
     })
     
     # map clicks ----
-    # Create reactive value to store selected station
+    # Create reactive value to store selected reserve/station
+    selected_reserve <- reactiveVal(NULL)
     selected_station <- reactiveVal(NULL)
     
     # Add click observers to all maps
@@ -407,11 +419,11 @@ server <- function(input, output, session) {
         w$show()
         on.exit(w$hide())
         
-        station_id <- click$id
-        selected_station(station_id)
+        reserve_id <- click$id
+        selected_reserve(reserve_id)
         
         # Open the sidebar when a station is clicked
-        sidebar_toggle("stn_sidebar", open = TRUE)
+        sidebar_toggle("reserve_sidebar", open = TRUE)
     })
     
     observeEvent(input$map2_marker_click, {
@@ -423,13 +435,18 @@ server <- function(input, output, session) {
         
         
         station_id <- click$id
-        reserve <- set_details[which(set_details$set_id == station_id), "reserve"] 
-        selected_station(reserve)
+        reserve <- set_details[which(set_details$Res_SET == station_id), "reserve"] 
+        selected_reserve(reserve)
+        selected_station(station_id)
         # Open the sidebar when a station is clicked
-        sidebar_toggle("stn_sidebar", open = TRUE)
+        sidebar_toggle("station_sidebar", open = TRUE)
         
     })
     
+    # Donut Plots ----
+    # output$donuts <- renderPlot({
+    #     
+    # })
 
     # Plotly graphs----
     output$stn_timeSeries <- renderPlotly({
@@ -445,21 +462,21 @@ server <- function(input, output, session) {
     
     
     # reserve list subsetting ----
-    selected_reserve <- reactive({
-        req(selected_station())
-        reserves_sets_list[[selected_station()]]
+    selected_reserve_list <- reactive({
+        req(selected_reserve())
+        reserves_sets_list[[selected_reserve()]]
     })
     
     # summary statement ----
     output$reserve_info <- renderText({
-        req(selected_station())
+        req(selected_reserve())
         
         res_inf <- reserve_details |> 
-            filter(ReserveCode == selected_station()) |> 
+            filter(ReserveCode == selected_reserve()) |> 
             distinct()
         
         # n_sets <- reserves_sets_list[[selected_station()]]$total$n
-        n_sets <- selected_reserve()$total$n
+        n_sets <- selected_reserve_list()$total$n
         
         res_out <- res_inf |> 
             glue_data("<b>{ReserveCode}</b> is {ReserveName} NERR in {ReserveState}. 
@@ -472,9 +489,9 @@ server <- function(input, output, session) {
     # SET summaries ----
     # dates installed
     output$sets_installed <- renderReactable({
-        req(selected_reserve())
+        req(selected_reserve_list())
         
-        selected_reserve()$installations |> 
+        selected_reserve_list()$installations |> 
             select(-reserve) |> 
             arrange(start_year) |> 
             reactable(
@@ -488,9 +505,9 @@ server <- function(input, output, session) {
     
     # SET types
     output$sets_types <- renderReactable({
-        req(selected_reserve())
+        req(selected_reserve_list())
         
-        selected_reserve()$types |> 
+        selected_reserve_list()$types |> 
             select(-reserve) |> 
             arrange(set_type) |> 
             reactable(
@@ -504,9 +521,9 @@ server <- function(input, output, session) {
     
     # dominant veg types
     output$sets_vegs <- renderReactable({
-        req(selected_reserve())
+        req(selected_reserve_list())
         
-        selected_reserve()$vegs |> 
+        selected_reserve_list()$vegs |> 
             select(-reserve) |> 
             arrange(dominant_vegetation) |> 
             reactable(
@@ -520,9 +537,9 @@ server <- function(input, output, session) {
     
     # salinities
     output$sets_salinities <- renderReactable({
-        req(selected_reserve())
+        req(selected_reserve_list())
         
-        selected_reserve()$salinities |> 
+        selected_reserve_list()$salinities |> 
             select(-reserve) |> 
             reactable(
                 columns = list(
@@ -539,6 +556,8 @@ server <- function(input, output, session) {
         req(selected_station())
         
         # filter some station information table; name it 'tbl'
+        tbl <- set_details |> 
+            filter(Res_SET == selected_station())
         
         reactable(tbl,
                   sortable = FALSE,
@@ -548,16 +567,16 @@ server <- function(input, output, session) {
                   ))
     })
     
-    # station sidebar ui ----
+    # reserve sidebar ui ----
     # with accordion
-    output$station_section <- renderUI({
+    output$reserve_section <- renderUI({
         # req(selected_station())
         
         accordion(
-            id = "station_accordion",
+            id = "reserve_accordion",
             open = FALSE,
             
-            h4(paste0("Selected Reserve: ", selected_station())),
+            h4(paste0("Selected Reserve: ", selected_reserve())),
 
             htmlOutput("reserve_info"),
             br(),
@@ -625,6 +644,92 @@ server <- function(input, output, session) {
                         placement = "right"
                     ),
 
+                    # graph
+                    # withWaiter(plotlyOutput("stn_timeSeries"))
+                    p("There might be a graph here")
+                )
+            )
+        )
+    })
+    
+    
+    # station sidebar ui ----
+    # with accordion
+    output$station_section <- renderUI({
+        # req(selected_station())
+        
+        accordion(
+            id = "station_accordion",
+            open = FALSE,
+            
+            h4(paste0("Selected SET: ", selected_station())),
+            
+            htmlOutput("reserve_info"),
+            br(),
+            br(),
+            
+            span(strong("More details about SETs at this reserve:"),
+                 tooltip(
+                     bsicons::bs_icon("info-circle"),
+                     HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
+                    <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
+                 )),
+            br(),
+            
+            
+            # SET types
+            accordion_panel(
+                title = "Types of SETs monitored",
+                reactableOutput("sets_types")
+            ),
+            
+            # when installed/first read
+            accordion_panel(
+                title = "Installation Dates",
+                reactableOutput("sets_installed")
+            ),
+            
+            # dominant vegetation
+            accordion_panel(
+                title = "Surrounding Vegetation",
+                reactableOutput("sets_vegs")
+            ),
+            
+            # general salinity
+            accordion_panel(
+                title = "Salinity Regime(s)",
+                reactableOutput("sets_salinities")
+            ),
+            
+            # Plotly graph, with accordioned options
+            accordion_panel(
+                title = "Time Series Graphs",
+                tags$small("The graph section can be popped out to full screen from the bottom right corner."),
+                
+                card(
+                    full_screen = TRUE,
+                    height = "50vh",
+                    
+                    
+                    # options popover
+                    popover(
+                        actionButton("btn", "Graph options",
+                                     icon = icon("sliders"),
+                                     width = 200,
+                                     class = "small-btn"),
+                        div(
+                            checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
+                                               choices = c("2 mg/L", "5 mg/L"),
+                                               selected = c("2 mg/L", "5 mg/L")),
+                            checkboxInput("var_sel", "Add middle 50% of values",
+                                          value = FALSE),
+                            checkboxInput("minmax_sel", label = "Add min/max",
+                                          value = FALSE)
+                        ),
+                        title = "Graph Options",
+                        placement = "right"
+                    ),
+                    
                     # graph
                     # withWaiter(plotlyOutput("stn_timeSeries"))
                     p("There might be a graph here")
