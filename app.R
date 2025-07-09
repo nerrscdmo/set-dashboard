@@ -79,6 +79,7 @@ ui <- page_fillable(
     # main body
     navset_card_tab(
         full_screen = TRUE,
+        id = "tabs",
         
         # sidebar: reserve info ----
         sidebar = sidebar(id = "reserve_sidebar",
@@ -321,7 +322,7 @@ server <- function(input, output, session) {
         
     })
     
-
+    
     # map1 update ----
     observe({
         
@@ -403,7 +404,7 @@ server <- function(input, output, session) {
                       title = legendtitle)
         
         m
-
+        
     })
     
     # map clicks ----
@@ -414,7 +415,7 @@ server <- function(input, output, session) {
     # Add click observers to all maps
     observeEvent(input$map1_marker_click, {
         click <- input$map1_marker_click
-
+        
         # waiter show ----
         w$show()
         on.exit(w$hide())
@@ -424,6 +425,7 @@ server <- function(input, output, session) {
         
         # Open the sidebar when a station is clicked
         sidebar_toggle("reserve_sidebar", open = TRUE)
+        
     })
     
     observeEvent(input$map2_marker_click, {
@@ -447,7 +449,7 @@ server <- function(input, output, session) {
     # output$donuts <- renderPlot({
     #     
     # })
-
+    
     # Plotly graphs----
     output$stn_timeSeries <- renderPlotly({
         
@@ -557,188 +559,189 @@ server <- function(input, output, session) {
         
         # filter some station information table; name it 'tbl'
         tbl <- set_details |> 
-            filter(Res_SET == selected_station())
+            filter(Res_SET == selected_station()) |> 
+            mutate(rate2 = glue("{round(rate, 2)} (95% CI: {round(CI_low, 2)}, {round(CI_high, 2)})"),
+                   start_yr = lubridate::year(start_date),
+                   end_yr = lubridate::year(end_date),
+                   time_series = glue("{round(ts_length, 1)} years ({start_yr} - {end_yr})")) |> 
+            select(Reserve = reserve,
+                   "SET Code" = set_id,
+                   "SET Name" = user_friendly_set_name,
+                   "SET Type" = set_type,
+                   "Monitoring Time Period" = time_series,
+                   "Rate of change" = rate2,
+                   "Keeping up with long-term SLR?" = dir_slr,
+                   "Keeping up with 19-yr water level change?" = dir_19yr,
+                   "Dominant vegetation" = dominant_vegetation,
+                   "General Salinity" = general_salinity
+            ) |> 
+            mutate(across(everything(), as.character)) |> 
+            pivot_longer(cols = everything(),
+                         names_to = "Characteristic",
+                         values_to = "Value")
         
         reactable(tbl,
-                  sortable = FALSE,
-                  columns = list(
-                      Column1 = colDef(align = "center"),
-                      Column2 = colDef(align = "center")
-                  ))
+                  sortable = FALSE
+                  )
     })
     
-    # reserve sidebar ui ----
+    # sidebar ui ----
     # with accordion
     output$reserve_section <- renderUI({
         # req(selected_station())
         
-        accordion(
-            id = "reserve_accordion",
-            open = FALSE,
-            
-            h4(paste0("Selected Reserve: ", selected_reserve())),
-
-            htmlOutput("reserve_info"),
-            br(),
-            br(),
-
-            span(strong("More details about SETs at this reserve:"),
-                 tooltip(
-                     bsicons::bs_icon("info-circle"),
-                     HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
-                    <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
-                 )),
-            br(),
-
-
-            # SET types
-            accordion_panel(
-                title = "Types of SETs monitored",
-                reactableOutput("sets_types")
-            ),
-            
-            # when installed/first read
-            accordion_panel(
-                title = "Installation Dates",
-                reactableOutput("sets_installed")
-            ),
-            
-            # dominant vegetation
-            accordion_panel(
-                title = "Surrounding Vegetation",
-                reactableOutput("sets_vegs")
-            ),
-            
-            # general salinity
-            accordion_panel(
-                title = "Salinity Regime(s)",
-                reactableOutput("sets_salinities")
-            ),
-
-            # Plotly graph, with accordioned options
-            accordion_panel(
-                title = "Time Series Graphs",
-                tags$small("The graph section can be popped out to full screen from the bottom right corner."),
-
-                card(
-                    full_screen = TRUE,
-                    height = "50vh",
-
-
-                    # options popover
-                    popover(
-                        actionButton("btn", "Graph options",
-                                     icon = icon("sliders"),
-                                     width = 200,
-                                     class = "small-btn"),
-                        div(
-                            checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
-                                               choices = c("2 mg/L", "5 mg/L"),
-                                               selected = c("2 mg/L", "5 mg/L")),
-                            checkboxInput("var_sel", "Add middle 50% of values",
-                                          value = FALSE),
-                            checkboxInput("minmax_sel", label = "Add min/max",
-                                          value = FALSE)
-                        ),
-                        title = "Graph Options",
-                        placement = "right"
-                    ),
-
-                    # graph
-                    # withWaiter(plotlyOutput("stn_timeSeries"))
-                    p("There might be a graph here")
-                )
-            )
-        )
-    })
-    
-    
-    # station sidebar ui ----
-    # with accordion
-    output$station_section <- renderUI({
-        # req(selected_station())
-        
-        accordion(
-            id = "station_accordion",
-            open = FALSE,
-            
-            h4(paste0("Selected SET: ", selected_station())),
-            
-            htmlOutput("reserve_info"),
-            br(),
-            br(),
-            
-            span(strong("More details about SETs at this reserve:"),
-                 tooltip(
-                     bsicons::bs_icon("info-circle"),
-                     HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
-                    <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
-                 )),
-            br(),
-            
-            
-            # SET types
-            accordion_panel(
-                title = "Types of SETs monitored",
-                reactableOutput("sets_types")
-            ),
-            
-            # when installed/first read
-            accordion_panel(
-                title = "Installation Dates",
-                reactableOutput("sets_installed")
-            ),
-            
-            # dominant vegetation
-            accordion_panel(
-                title = "Surrounding Vegetation",
-                reactableOutput("sets_vegs")
-            ),
-            
-            # general salinity
-            accordion_panel(
-                title = "Salinity Regime(s)",
-                reactableOutput("sets_salinities")
-            ),
-            
-            # Plotly graph, with accordioned options
-            accordion_panel(
-                title = "Time Series Graphs",
-                tags$small("The graph section can be popped out to full screen from the bottom right corner."),
+        # reserve-level ----
+        if(input$tabs == "Reserve-level"){
+            accordion(
+                id = "reserve_accordion",
+                open = FALSE,
                 
-                card(
-                    full_screen = TRUE,
-                    height = "50vh",
+                h4(paste0("Selected Reserve: ", selected_reserve())),
+                
+                htmlOutput("reserve_info"),
+                br(),
+                br(),
+                
+                span(strong("More details about SETs at this reserve:"),
+                     tooltip(
+                         bsicons::bs_icon("info-circle"),
+                         HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
+                    <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
+                     )),
+                br(),
+                
+                
+                # SET types
+                accordion_panel(
+                    title = "Types of SETs monitored",
+                    reactableOutput("sets_types")
+                ),
+                
+                # when installed/first read
+                accordion_panel(
+                    title = "Installation Dates",
+                    reactableOutput("sets_installed")
+                ),
+                
+                # dominant vegetation
+                accordion_panel(
+                    title = "Surrounding Vegetation",
+                    reactableOutput("sets_vegs")
+                ),
+                
+                # general salinity
+                accordion_panel(
+                    title = "Salinity Regime(s)",
+                    reactableOutput("sets_salinities")
+                ),
+                
+                # Plotly graph, with accordioned options
+                accordion_panel(
+                    title = "Time Series Graphs",
+                    tags$small("The graph section can be popped out to full screen from the bottom right corner."),
                     
-                    
-                    # options popover
-                    popover(
-                        actionButton("btn", "Graph options",
-                                     icon = icon("sliders"),
-                                     width = 200,
-                                     class = "small-btn"),
-                        div(
-                            checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
-                                               choices = c("2 mg/L", "5 mg/L"),
-                                               selected = c("2 mg/L", "5 mg/L")),
-                            checkboxInput("var_sel", "Add middle 50% of values",
-                                          value = FALSE),
-                            checkboxInput("minmax_sel", label = "Add min/max",
-                                          value = FALSE)
+                    card(
+                        full_screen = TRUE,
+                        height = "50vh",
+                        
+                        
+                        # options popover
+                        popover(
+                            actionButton("btn", "Graph options",
+                                         icon = icon("sliders"),
+                                         width = 200,
+                                         class = "small-btn"),
+                            div(
+                                checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
+                                                   choices = c("2 mg/L", "5 mg/L"),
+                                                   selected = c("2 mg/L", "5 mg/L")),
+                                checkboxInput("var_sel", "Add middle 50% of values",
+                                              value = FALSE),
+                                checkboxInput("minmax_sel", label = "Add min/max",
+                                              value = FALSE)
+                            ),
+                            title = "Graph Options",
+                            placement = "right"
                         ),
-                        title = "Graph Options",
-                        placement = "right"
-                    ),
-                    
-                    # graph
-                    # withWaiter(plotlyOutput("stn_timeSeries"))
-                    p("There might be a graph here")
+                        
+                        # graph
+                        # withWaiter(plotlyOutput("stn_timeSeries"))
+                        p("There might be a graph here")
+                    )
                 )
             )
-        )
+
+            # station level ui ----
+        } else if(input$tabs == "SET-level") {
+            accordion(
+                id = "reserve_accordion",
+                open = FALSE,
+                
+                h4(paste0("Selected SET: ", selected_station())),
+                
+                htmlOutput("reserve_info"),
+                br(),
+                br(),
+                
+                span(strong("More details about SETs at this reserve:"),
+                     tooltip(
+                         bsicons::bs_icon("info-circle"),
+                         HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
+                    <p>Below the graphs is a slider bar to let you change how much of the x-axis is visible.</p>")
+                     )),
+                br(),
+                
+                
+                # SET types
+                accordion_panel(
+                    title = "SET summary",
+                    reactableOutput("stn_tbl")
+                ),
+                
+                # Plotly graph, with accordioned options
+                accordion_panel(
+                    title = "Time Series Graphs",
+                    tags$small("The graph section can be popped out to full screen from the bottom right corner."),
+                    
+                    card(
+                        full_screen = TRUE,
+                        height = "50vh",
+                        
+                        
+                        # options popover
+                        popover(
+                            actionButton("btn", "Graph options",
+                                         icon = icon("sliders"),
+                                         width = 200,
+                                         class = "small-btn"),
+                            div(
+                                checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
+                                                   choices = c("2 mg/L", "5 mg/L"),
+                                                   selected = c("2 mg/L", "5 mg/L")),
+                                checkboxInput("var_sel", "Add middle 50% of values",
+                                              value = FALSE),
+                                checkboxInput("minmax_sel", label = "Add min/max",
+                                              value = FALSE)
+                            ),
+                            title = "Graph Options",
+                            placement = "right"
+                        ),
+                        
+                        # graph
+                        # withWaiter(plotlyOutput("stn_timeSeries"))
+                        p("There might be a graph here")
+                    )
+                )
+            )
+            
+        } else {
+            h3("Sidebar is useless in this tab")
+        }
+        
     })
     
-    # value box ----
+    
+   # value box ----
     output$station_count <- renderText({
         # calculate something here to show in the value box
     })
