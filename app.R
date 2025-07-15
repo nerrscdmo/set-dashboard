@@ -430,10 +430,6 @@ server <- function(input, output, session) {
         
     })
     
-    # Donut Plots ----
-    # output$donuts <- renderPlot({
-    #     
-    # })
     
     # Plotly graphs----
     output$stn_timeSeries <- renderPlotly({
@@ -554,7 +550,7 @@ server <- function(input, output, session) {
                    "SET Name" = user_friendly_set_name,
                    "SET Type" = set_type,
                    "Monitoring Time Period" = time_series,
-                   "Rate of change" = rate2,
+                   "Rate of change (mm/yr)" = rate2,
                    "Keeping up with long-term SLR?" = dir_slr,
                    "Keeping up with 19-yr water level change?" = dir_19yr,
                    "Dominant vegetation" = dominant_vegetation,
@@ -730,7 +726,7 @@ server <- function(input, output, session) {
     output$donuts_allSETs <- renderPlot({
         plot_set_distn_pair(p_allSETs_longterm, p_allSETs_19yr,
                             legend.position = "right") +
-            plot_annotation(subtitle = "Water level comparison:",
+            plot_annotation(subtitle = "All NERR SETs; compared to which water level change:",
                             theme = theme(plot.title.position = "panel")) &
             theme(legend.text = element_text(size = rel(0.8)),
                   legend.key.size = unit(0.8, "lines"))
