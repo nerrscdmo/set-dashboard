@@ -726,8 +726,9 @@ server <- function(input, output, session) {
     output$donuts_allSETs <- renderPlot({
         plot_set_distn_pair(p_allSETs_longterm, p_allSETs_19yr,
                             legend.position = "right") +
-            plot_annotation(subtitle = "All NERR SETs; compared to which water level change:",
-                            theme = theme(plot.title.position = "panel")) &
+            plot_annotation(subtitle = paste0("Compared to which water level change:\n(n = ", nrow(set_details), " SETs in this view)"),
+                            theme = theme(plot.title.position = "panel",
+                                          plot.subtitle = element_text(size = rel(0.9)))) &
             theme(legend.text = element_text(size = rel(0.8)),
                   legend.key.size = unit(0.8, "lines"))
     }, height = 140, res = 96)
