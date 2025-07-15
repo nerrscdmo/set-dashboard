@@ -10,6 +10,7 @@ library(reactable)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(patchwork)
 library(waiter)
 library(glue)
 # library(SETr)
@@ -33,8 +34,9 @@ ui <- page_fillable(
     
     # Header ----
     layout_columns(
-        col_widths = c(6, 3, 3),
+        col_widths = c(6, 6),
         fill = FALSE,
+        height = 140,
         
         # Header, github link, description
         div(
@@ -55,25 +57,8 @@ ui <- page_fillable(
             p("Choose a tab to explore marsh surface elevation change nationally. Change options in the left sidebar, and click on a station to see more detail in a right sidebar.")
         ),
         
-        # Value box
-        value_box(
-            title = "# SETs keeping up with SLR",
-            value = textOutput("station_count"),
-            showcase = bsicons::bs_icon("graph-up-arrow"),
-            showcase_layout = "left center",
-            theme = "success",
-            max_height = "120px"
-        ),
-        
-        # Value box 2
-        value_box(
-            title = "# SETs not keeping up with SLR",
-            value = textOutput("station_count2"),
-            showcase = bsicons::bs_icon("graph-down-arrow"),
-            showcase_layout = "left center",
-            theme = "danger",
-            max_height = "120px"
-        )
+        # donut plots
+        plotOutput("donuts_allSETs")
     ),
     
     # main body
@@ -741,15 +726,15 @@ server <- function(input, output, session) {
     })
     
     
-   # value box ----
-    output$station_count <- renderText({
-        # calculate something here to show in the value box
-    })
-    
-    # value box 2----
-    output$station_count2 <- renderText({
-        # calculate something here to show in the value box
-    })
+   # donut charts ----
+    output$donuts_allSETs <- renderPlot({
+        plot_set_distn_pair(p_allSETs_longterm, p_allSETs_19yr,
+                            legend.position = "right") +
+            plot_annotation(subtitle = "Water level comparison:",
+                            theme = theme(plot.title.position = "panel")) &
+            theme(legend.text = element_text(size = rel(0.8)),
+                  legend.key.size = unit(0.8, "lines"))
+    }, height = 140, res = 96)
     
     
 }

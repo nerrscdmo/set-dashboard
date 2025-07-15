@@ -42,3 +42,26 @@ reserve_mappiness <- set_details |>
 set_details <- set_details |> 
     mutate(Res_SET = paste(reserve, set_id, sep = "_"))
 
+
+# donut charts ----
+p_allSETs_longterm <- plot_set_distn(set_details, dir_slr, 
+                                     type = "donut", label = "none",
+                                     hsize = 1.6) +
+    annotate("text",
+             label = "long-\nterm",
+             size = 3,
+             col = "navy",
+             fontface = "bold",
+             x = 0.2,
+             y = 0)
+p_allSETs_19yr <- plot_set_distn(set_details, dir_19yr, 
+                                 type = "donut", label = "none",
+                                 hsize = 1.6) +
+    annotate("text",
+             label = "near-\nterm",
+             size = 3,
+             col = "navy",
+             fontface = "bold",
+             x = 0.2,
+             y = 0)
+
