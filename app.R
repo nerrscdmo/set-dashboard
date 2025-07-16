@@ -448,6 +448,22 @@ server <- function(input, output, session) {
         
     })
     
+    output$reserve_timeSeries <- renderPlotly({
+        
+        # identify the station
+        res <- selected_reserve()
+        
+        # subset the data for that station
+        toplo <- set_avgd_readings |> 
+            filter(reserve == res)
+        
+        # make a nice plotly graph with it
+        p <- plot_cumu_set(toplo, height_cumu)
+        
+        ggplotly(p)
+        
+    })
+    
     
     # reserve list subsetting ----
     selected_reserve_list <- reactive({
@@ -638,6 +654,8 @@ server <- function(input, output, session) {
                                          width = 200,
                                          class = "small-btn"),
                             div(
+                                p(strong("THESE ARE NOT REAL OPTIONS AT THE MOMENT")),
+                                br(),
                                 checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
                                                    choices = c("2 mg/L", "5 mg/L"),
                                                    selected = c("2 mg/L", "5 mg/L")),
@@ -651,8 +669,7 @@ server <- function(input, output, session) {
                         ),
                         
                         # graph
-                        # withWaiter(plotlyOutput("stn_timeSeries"))
-                        p("There might be a graph here")
+                        withWaiter(plotlyOutput("reserve_timeSeries"))
                     )
                 )
             )
@@ -701,6 +718,8 @@ server <- function(input, output, session) {
                                          width = 200,
                                          class = "small-btn"),
                             div(
+                                p(strong("THESE ARE NOT REAL OPTIONS AT THE MOMENT")),
+                                br(),
                                 checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
                                                    choices = c("2 mg/L", "5 mg/L"),
                                                    selected = c("2 mg/L", "5 mg/L")),
@@ -714,9 +733,8 @@ server <- function(input, output, session) {
                         ),
                         
                         # graph
-                        browser(),
                         withWaiter(plotlyOutput("stn_timeSeries"))
-                        # p("There might be a graph here")
+                        
                     )
                 )
             )
