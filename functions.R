@@ -93,3 +93,26 @@ plot_set_distn_pair <- function(distn1, distn2, title = NULL,
         plot_annotation(title = title) &
         theme(legend.position = legend.position)
 }
+
+plot_cumu_set <- function(data, change_column, 
+                          columns = 4, pointsize = 3.5, 
+                          scales = "fixed", 
+                          smooth = TRUE, lty_smooth = 5){
+    # data needs to be the $set piece of the output from calc_change_cumu
+    ggplot(data, aes(x = date, y = {{change_column}})) +
+        geom_line(col = 'lightsteelblue4') +
+        {if(smooth) geom_smooth(se = FALSE, method = 'lm', 
+                                col = 'steelblue4', lty = lty_smooth, linewidth = 1)} +
+        geom_point(shape = 21, 
+                   fill = 'lightsteelblue1', col = 'steelblue3', 
+                   size = pointsize, alpha = 0.9) +
+        facet_wrap(~set_id, ncol = columns, scales = scales) +
+        {if(smooth) labs(title = 'Cumulative Change since first reading', 
+                         subtitle = 'dashed line is linear regression',
+                         x = 'Date',
+                         y = 'Change since first reading (mm)')} +
+        {if(!smooth) labs(title = 'Cumulative Change since first reading', 
+                          x = 'Date',
+                          y = 'Change since first reading (mm)')} +
+        theme_classic()
+}

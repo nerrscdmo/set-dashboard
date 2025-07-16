@@ -438,8 +438,13 @@ server <- function(input, output, session) {
         stn <- selected_station()
         
         # subset the data for that station
+        toplo <- set_avgd_readings |> 
+            filter(Res_SET == stn)
         
         # make a nice plotly graph with it
+        p <- plot_cumu_set(toplo, height_cumu)
+        
+        ggplotly(p)
         
     })
     
@@ -709,8 +714,9 @@ server <- function(input, output, session) {
                         ),
                         
                         # graph
-                        # withWaiter(plotlyOutput("stn_timeSeries"))
-                        p("There might be a graph here")
+                        browser(),
+                        withWaiter(plotlyOutput("stn_timeSeries"))
+                        # p("There might be a graph here")
                     )
                 )
             )
