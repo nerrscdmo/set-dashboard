@@ -48,7 +48,7 @@ plot_set_distn <- function(data,
         coord_polar("y", start = 0) +
         theme_void() +
         theme(legend.text = element_text(size = rel(0.8))) +
-        labs(fill = "SETs keeping up?")
+        labs(fill = "Marshes keeping up?")
     
     
     if(label == "count"){

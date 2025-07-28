@@ -75,73 +75,15 @@ ui <- page_fillable(
                           uiOutput("reserve_section")
         ),
         
-        # # sidebar: station info ----
-        # sidebar = sidebar(id = "station_sidebar",
-        #                   position = "right",
-        #                   width = "50%",
-        #                   height = "90vh",
-        #                   open = FALSE,
-        #                   uiOutput("station_section")
-        # ),
-        
-        
         
         # map tabs ----
-        # panel 1: pie chart map ----
+        # panel 1: SET-level ----
         nav_panel(
-            "Reserve-level",
-            # in this panel, show pie charts by reserve
-            full_screen = TRUE,
-            
-            card_header("What is the split of SETs keeping up vs. not, by Reserve?",
-                        tooltip(
-                            bsicons::bs_icon("info-circle"),
-                            "Information about calculation of what is shown on the map."
-                        ), # end tooltip
-            ), # end header
-            
-            
-            
-            # sidebar layout
-            
-            layout_sidebar(
-                sidebar = sidebar(
-                    # title = "Map Options",
-                    width = "30%",
-                    position = "left",
-                    open = TRUE,
-                    
-                    div(
-                        "Compare reserves to: ",
-                        tooltip(
-                            bsicons::bs_icon("info-circle"),
-                            "Information on choices"
-                        ),
-                        radioButtons("panel1Param_sel", label = NULL,
-                                     choiceNames = c("Long-term sea level rise",
-                                                     "19-year water level change"),
-                                     choiceValues = c("longterm",
-                                                      "yr19"),
-                                     selected = "longterm")
-                    )
-                    
-                    
-                ), # end sidebar
-                
-                # map
-                leafletOutput("map1")
-                
-            ) # end tab's layout_sidebar
-            
-        ), # end nav panel 1
-        
-        # panel 2: SET-level ----
-        nav_panel(
-            "SET-level",
+            "Station-level",
             # show all SETs here, with the up/down arrows
             full_screen = TRUE,
             
-            card_header("How is elevation change spread within a reserve? (Zoom in!)",
+            card_header("How is marsh elevation changing? (Zoom in to see multiple stations at a single reserve!)",
                         tooltip(
                             bsicons::bs_icon("info-circle"),
                             "Info about what is on the map"
@@ -160,14 +102,14 @@ ui <- page_fillable(
                     open = TRUE,
                     
                     div(
-                        "Compare SETs to: ",
+                        "Compare marsh elevations to: ",
                         tooltip(
                             bsicons::bs_icon("info-circle"),
                             "Info about options."
                         ),
                         radioButtons("panel2Param_sel", label = NULL,
-                                     choiceNames = c("Long-term sea level rise",
-                                                     "19-year water level change"),
+                                     choiceNames = c("Long-term sea level change",
+                                                     "Near-term water level change"),
                                      choiceValues = c("longterm",
                                                       "yr19"),
                                      selected = "longterm")
@@ -191,11 +133,59 @@ ui <- page_fillable(
                 ), # end sidebar
                 
                 # map
-                leafletOutput("map2")
+                leafletOutput("map2")  # originally this was the 2nd panel, so 2nd map
                 
             ) # end tab's layout_sidebar
             
-        ), # end nav panel 2        
+        ), # end nav panel 1    
+        
+        # panel 2: pie chart map ----
+        nav_panel(
+            "Reserve-level",
+            # in this panel, show pie charts by reserve
+            full_screen = TRUE,
+            
+            card_header("Pie charts represent the proportion of stations at a reserve falling into each category",
+                        tooltip(
+                            bsicons::bs_icon("info-circle"),
+                            "Information about calculation of what is shown on the map."
+                        ), # end tooltip
+            ), # end header
+            
+            
+            
+            # sidebar layout
+            
+            layout_sidebar(
+                sidebar = sidebar(
+                    # title = "Map Options",
+                    width = "30%",
+                    position = "left",
+                    open = TRUE,
+                    
+                    div(
+                        "Compare reserves to: ",
+                        tooltip(
+                            bsicons::bs_icon("info-circle"),
+                            "Information on choices"
+                        ),
+                        radioButtons("panel1Param_sel", label = NULL,                # this was originally panel 1
+                                     choiceNames = c("Long-term sea level change",
+                                                     "Near-term water level change"),
+                                     choiceValues = c("longterm",
+                                                      "yr19"),
+                                     selected = "longterm")
+                    )
+                    
+                    
+                ), # end sidebar
+                
+                # map
+                leafletOutput("map1")
+                
+            ) # end tab's layout_sidebar
+            
+        ), # end nav panel 2
         
         
         # panel 3: Instructions ----
@@ -484,7 +474,7 @@ server <- function(input, output, session) {
         
         res_out <- res_inf |> 
             glue_data("<b>{ReserveCode}</b> is {ReserveName} NERR in {ReserveState}. 
-            This reserve monitors <b>{n_sets} stations</b>; expand the sections below for more detail. <br><br>
+            Data from <b>{n_sets} stations</b> from this reserve are included in this dashboard; expand the sections below for more detail. <br><br>
             For more information about the reserve, please visit <a href='{ReserveWebsite}' target='_blank'>their website</a>.")
         
         HTML(res_out)
