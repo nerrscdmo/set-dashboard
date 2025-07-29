@@ -481,6 +481,15 @@ server <- function(input, output, session) {
     })
     
     # SET summaries ----
+    # SLR summaries actually
+    output$slr_rates <- renderReactable({
+        req(selected_reserve_list())
+        
+        rates <- selected_reserve_list()$slr_rates
+        results_slr <- selected_reserve_list()$slr_comps
+        results_19yr <- selected_reserve_list()$yr19_comps
+    })
+    
     # dates installed
     output$sets_installed <- renderReactable({
         req(selected_reserve_list())
