@@ -553,6 +553,7 @@ server <- function(input, output, session) {
         tbl <- set_details |> 
             filter(Res_SET == selected_station()) |> 
             mutate(rate2 = glue("{round(rate, 2)} (95% CI: {round(CI_low, 2)}, {round(CI_high, 2)})"),
+                   rate19yr = glue("{round(slr_19yr, 2)} (95% CI: {round(yr19_CI_low, 2)}, {round(yr19_CI_high, 2)})"),
                    start_yr = lubridate::year(start_date),
                    end_yr = lubridate::year(end_date),
                    time_series = glue("{round(ts_length, 1)} years ({start_yr} - {end_yr})")) |> 
@@ -561,9 +562,10 @@ server <- function(input, output, session) {
                    "SET Name" = user_friendly_set_name,
                    "SET Type" = set_type,
                    "Monitoring Time Period" = time_series,
-                   "Rate of change (mm/yr)" = rate2,
-                   "Keeping up with long-term SLR?" = dir_slr,
-                   "Keeping up with 19-yr water level change?" = dir_19yr,
+                   "Rate of change, long-term (mm/yr)" = rate2,
+                   "Keeping up with long-term sea level change?" = dir_slr,
+                   "Rate of change, near-term (mm/yr)" = rate19yr,
+                   "Keeping up with near-term water level change?" = dir_19yr,
                    "Dominant vegetation" = dominant_vegetation,
                    "General Salinity" = general_salinity
             ) |> 
@@ -665,12 +667,12 @@ server <- function(input, output, session) {
             )
 
             # station level ui ----
-        } else if(input$tabs == "SET-level") {
+        } else if(input$tabs == "Station-level") {
             accordion(
                 id = "reserve_accordion",
                 open = FALSE,
                 
-                h4(paste0("Selected SET: ", selected_station())),
+                h4(paste0("Selected Station: ", selected_station())),
                 
                 htmlOutput("reserve_info"),
                 br(),
