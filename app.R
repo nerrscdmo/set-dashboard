@@ -398,8 +398,10 @@ server <- function(input, output, session) {
         reserve_id <- click$id
         selected_reserve(reserve_id)
         
-        # Open the sidebar when a station is clicked
+        # Open the sidebar when a reserve pie chart is clicked
         sidebar_toggle("reserve_sidebar", open = TRUE)
+        
+        # browser()
         
     })
     
@@ -521,9 +523,12 @@ server <- function(input, output, session) {
     output$slr_rates <- renderReactable({
         req(selected_reserve_list())
         
-        rates <- selected_reserve_list()$slr_rates
-        results_slr <- selected_reserve_list()$slr_comps
-        results_19yr <- selected_reserve_list()$yr19_comps
+        rts <- list(
+            rates = selected_reserve_list()$slr_rates,
+            results_slr = selected_reserve_list()$slr_comps,
+            results_19yr = selected_reserve_list()$yr19_comps
+        )
+        
     })
     
     # dates installed
