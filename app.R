@@ -467,7 +467,7 @@ server <- function(input, output, session) {
                       col = "blue",
                       linewidth = 1.5) +
             theme_classic() +
-            labs(title = "Elevation change since first reading", 
+            labs(title = "Elevation change since first reading\nblue line is selected station; \ngray lines are other stations from Reserve", 
                  subtitle = "compared to other Reserve stations",
                  x = "Date",
                  y = "Change since first reading (mm)")
