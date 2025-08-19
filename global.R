@@ -14,7 +14,7 @@ leaflet_colors <- colorFactor(palette = cols_slr,
 reserve_sets <- reserve_sets |> 
     mutate(outcome = factor(outcome, 
                             levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
-                            labels = c("No, more confident", "No, less confident", "Not enough info",
+                            labels = c("No, more confident", "No, less confident", "Not calculated",
                                        "Yes, less confident", "Yes, more confident")))
 
 
@@ -35,25 +35,5 @@ set_avgd_readings <- set_avgd_readings |>
     mutate(Res_SET = paste(reserve, set_id, sep = "_"))
 
 
-# donut charts ----
-p_allSETs_longterm <- plot_set_distn(set_details, dir_slr, 
-                                     type = "donut", label = "none",
-                                     hsize = 1.6) +
-    annotate("text",
-             label = "long-\nterm",
-             size = 3,
-             col = "navy",
-             fontface = "bold",
-             x = 0.2,
-             y = 0)
-p_allSETs_19yr <- plot_set_distn(set_details, dir_19yr, 
-                                 type = "donut", label = "none",
-                                 hsize = 1.6) +
-    annotate("text",
-             label = "near-\nterm",
-             size = 3,
-             col = "navy",
-             fontface = "bold",
-             x = 0.2,
-             y = 0)
+
 

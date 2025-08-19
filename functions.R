@@ -102,7 +102,7 @@ plot_cumu_set <- function(data, change_column,
     ggplot(data, aes(x = date, y = {{change_column}})) +
         geom_line(col = 'lightsteelblue4') +
         {if(smooth) geom_smooth(se = FALSE, method = 'lm', 
-                                col = 'steelblue4', lty = lty_smooth, linewidth = 1)} +
+                                col = 'steelblue4', lty = lty_smooth, linewidth = 0.8)} +
         geom_point(shape = 21, 
                    fill = 'lightsteelblue1', col = 'steelblue3', 
                    size = pointsize, alpha = 0.9) +

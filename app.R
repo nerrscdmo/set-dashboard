@@ -418,6 +418,8 @@ server <- function(input, output, session) {
         # Open the sidebar when a station is clicked
         sidebar_toggle("reserve_sidebar", open = TRUE)
         
+        # browser()
+        
     })
     
     
@@ -426,13 +428,47 @@ server <- function(input, output, session) {
         
         # identify the station
         stn <- selected_station()
-        
+
         # subset the data for that station
         toplo <- set_avgd_readings |> 
             filter(Res_SET == stn)
         
         # make a nice plotly graph with it
         p <- plot_cumu_set(toplo, height_cumu)
+        
+        ggplotly(p)
+        
+    })
+    
+    output$stn_grouptimeSeries <- renderPlotly({
+        
+        # identify the station
+        stn <- selected_station()
+        res <- selected_reserve()
+        
+        # subset the data for that station
+        toplo_res <- set_avgd_readings |> 
+            filter(reserve == res)
+        
+        toplo_set <- set_avgd_readings |> 
+            filter(Res_SET == stn)
+        
+        # make a nice plotly graph with it
+        p <- ggplot(toplo_res,
+                    aes(x = date,
+                        y = height_cumu,
+                        group = set_id)) +
+            geom_hline(yintercept = 0,
+                       col = "gray20") +
+            geom_line(col = "gray70") +
+            geom_line(data = toplo_set,
+                      col = "blue",
+                      linewidth = 1.5) +
+            theme_classic() +
+            labs(title = "Elevation change since first reading", 
+                 subtitle = "compared to other Reserve stations",
+                 x = "Date",
+                 y = "Change since first reading (mm)")
         
         ggplotly(p)
         
@@ -571,9 +607,9 @@ server <- function(input, output, session) {
                    "SET Name" = user_friendly_set_name,
                    "SET Type" = set_type,
                    "Monitoring Time Period" = time_series,
-                   "Rate of change, long-term (mm/yr)" = rate2,
-                   "Keeping up with long-term sea level change?" = dir_slr,
-                   "Rate of change, near-term (mm/yr)" = rate19yr,
+                   "Rate of water level change, long-term (mm/yr)" = rate2,
+                   "Keeping up with long-term water level change?" = dir_slr,
+                   "Rate of water level change, near-term (mm/yr)" = rate19yr,
                    "Keeping up with near-term water level change?" = dir_19yr,
                    "Dominant vegetation" = dominant_vegetation,
                    "General Salinity" = general_salinity
@@ -687,7 +723,7 @@ server <- function(input, output, session) {
                 br(),
                 br(),
                 
-                span(strong("More details about SETs at this reserve:"),
+                span(strong("More details about this station:"),
                      tooltip(
                          bsicons::bs_icon("info-circle"),
                          HTML("<p>Pop graphs out to full screen from the bottom right corner.</p>
@@ -698,13 +734,13 @@ server <- function(input, output, session) {
                 
                 # SET types
                 accordion_panel(
-                    title = "SET summary",
+                    title = "Station summary",
                     reactableOutput("stn_tbl")
                 ),
                 
                 # Plotly graph, with accordioned options
                 accordion_panel(
-                    title = "Time Series Graphs",
+                    title = "Time Series Graph",
                     tags$small("The graph section can be popped out to full screen from the bottom right corner."),
                     
                     card(
@@ -712,46 +748,55 @@ server <- function(input, output, session) {
                         height = "50vh",
                         
                         
-                        # options popover
-                        popover(
-                            actionButton("btn", "Graph options",
-                                         icon = icon("sliders"),
-                                         width = 200,
-                                         class = "small-btn"),
-                            div(
-                                p(strong("THESE ARE NOT REAL OPTIONS AT THE MOMENT")),
-                                br(),
-                                checkboxGroupInput("thresh_sel", "Select threshold(s) of interest:",
-                                                   choices = c("2 mg/L", "5 mg/L"),
-                                                   selected = c("2 mg/L", "5 mg/L")),
-                                checkboxInput("var_sel", "Add middle 50% of values",
-                                              value = FALSE),
-                                checkboxInput("minmax_sel", label = "Add min/max",
-                                              value = FALSE)
-                            ),
-                            title = "Graph Options",
-                            placement = "right"
-                        ),
-                        
-                        # graph
-                        withWaiter(plotlyOutput("stn_timeSeries"))
+                        withWaiter(plotlyOutput("stn_grouptimeSeries"))
                         
                     )
                 )
             )
             
         } else {
-            h3("Sidebar is useless in this tab")
+            h3("Surprise! You found a bonus sidebar. Nothing happens here.")
         }
         
     })
     
     
+    # filter sets based on user choices
+    filtered_sets <- reactive({
+        set_details |> 
+            filter(dir_slr != "Not calculated",
+                   dir_19yr != "Not calculated")
+    })
+    
    # donut charts ----
     output$donuts_allSETs <- renderPlot({
+        req(filtered_sets())
+        
+        p_allSETs_longterm <- plot_set_distn(filtered_sets(), dir_slr, 
+                                             type = "donut", label = "none",
+                                             hsize = 1.6) +
+            annotate("text",
+                     label = "long-\nterm",
+                     size = 3,
+                     col = "gray20",
+                     fontface = "bold",
+                     x = 0.2,
+                     y = 0)
+        
+        p_allSETs_19yr <- plot_set_distn(filtered_sets(), dir_19yr, 
+                                         type = "donut", label = "none",
+                                         hsize = 1.6) +
+            annotate("text",
+                     label = "near-\nterm",
+                     size = 3,
+                     col = "gray20",
+                     fontface = "bold",
+                     x = 0.2,
+                     y = 0)
+        
         plot_set_distn_pair(p_allSETs_longterm, p_allSETs_19yr,
                             legend.position = "right") +
-            plot_annotation(subtitle = paste0("Compared to which water level change:\n(n = ", nrow(set_details), " SETs in this view)"),
+            plot_annotation(subtitle = paste0("Compared to which water level change:\n(n = ", nrow(filtered_sets()), " SETs in this view)"),
                             theme = theme(plot.title.position = "panel",
                                           plot.subtitle = element_text(size = rel(0.9)))) &
             theme(legend.text = element_text(size = rel(0.8)),
