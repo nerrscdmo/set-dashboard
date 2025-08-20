@@ -796,7 +796,8 @@ server <- function(input, output, session) {
             )
             
         } else {
-            h3("Surprise! You found a bonus sidebar. Nothing happens here.")
+            h5("The sidebar does not have additional information for this tab.")
+            
         }
         
     })
