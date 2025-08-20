@@ -523,10 +523,41 @@ server <- function(input, output, session) {
     output$slr_rates <- renderReactable({
         req(selected_reserve_list())
         
-        rts <- list(
-            rates = selected_reserve_list()$slr_rates,
-            results_slr = selected_reserve_list()$slr_comps,
-            results_19yr = selected_reserve_list()$yr19_comps
+        tmp <- selected_reserve_list()$water_comp_summaries |> 
+            select(-Total)
+        
+        # Define the expected columns
+        expected_cols <- c("Water_Comparison", "Rate",
+                           "Yes, more confident", "Yes, less confident",
+                           "No, less confident", "No, more confident")
+        
+        # Add any missing columns with 0
+        missing_cols <- setdiff(expected_cols, names(tmp))
+        if (length(missing_cols) > 0) {
+            for (col in missing_cols) {
+                tmp[[col]] <- 0
+            }
+        }
+        
+        # Reorder: expected columns first, then keep any extras (like "Not calculated")
+        ordered_cols <- c(expected_cols, setdiff(names(tmp), expected_cols))
+        tmp <- tmp[, ordered_cols, drop = FALSE]
+        
+        
+        reactable(tmp,
+                  columns = list(
+                      Water_Comparison = colDef(name = "Description"),
+                      Rate = colDef(name = "Rate (95% CI)"),
+                      `Yes, more confident` = colDef(name = "More Confident"),
+                      `Yes, less confident` = colDef(name = "Less Confident"),
+                      `No, less confident` = colDef(name = "Less Confident"),
+                      `No, more confident` = colDef(name = "More Confident")
+                  ),
+                  columnGroups = list(
+                      colGroup("Water Level Change", columns = c("Water_Comparison", "Rate")),
+                      colGroup("# Keeping Up", columns = c("Yes, more confident", "Yes, less confident")),
+                      colGroup("# Not Keeping Up", columns = c("No, less confident", "No, more confident"))
+                  )
         )
         
     })
@@ -654,6 +685,11 @@ server <- function(input, output, session) {
                      )),
                 br(),
                 
+                # Comparisons to SLR
+                accordion_panel(
+                  title = "Comparisons to Water Level Change",
+                  reactableOutput("slr_rates")
+                ),
                 
                 # SET types
                 accordion_panel(
