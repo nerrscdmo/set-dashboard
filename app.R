@@ -19,6 +19,7 @@ library(glue)
 # setup ----
 source("functions.R")
 source("global.R")
+source("explanations.R")
 
 # UI ----
 ui <- page_fillable(
@@ -187,25 +188,10 @@ ui <- page_fillable(
             
         ), # end nav panel 2
         
+        # panel 3: About ----
+        # in another (sourced; see above) file to save space here
+        about_ui
         
-        # panel 3: Instructions ----
-        nav_panel(
-            "Using this dashboard",
-            full_screen = FALSE,
-            
-            card_header("Tips and Tricks",
-                        tooltip(
-                            bsicons::bs_icon("info-circle"),
-                            "Info here"
-                        ) # end tooltip
-            ), # end header
-            
-            p("Put text here about different options"),
-            p("...what each tab does, how to interact with the maps, what pops up in the sidebar and how you can interact with that"),
-            p("...about SWMP data"),
-            p("...text about dashboard development and for more information, etc.")
-            
-        ) # end nav-panel 3
         
     ) # end nav-panel layout
     
