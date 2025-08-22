@@ -6,16 +6,25 @@ load(here::here("data",
 load(here::here("images",
                 "color_palette.RDS"))
 # make that work with leaflet legend too
-leaflet_colors <- colorFactor(palette = cols_slr,
-                              domain = names(cols_slr))
+leaflet_colors <- colorFactor(palette = unname(cols_slr),
+                              domain = set_details$dir_slr)
+
+# # Check the color palette
+# data.frame(
+#     level = levels(set_details$dir_slr),
+#     color = leaflet_colors(levels(set_details$dir_slr))
+# )
 
 
 # use factors - match names of color palette ----
+# note, when changing the order of the factor, need to also change it in:
+# set-data-processing, 03_construct_map_graphics, lines 9-22
+# set-data-processing, 02_rate_generation_all_sets, chunk 23, starting line 331
 reserve_sets <- reserve_sets |> 
     mutate(outcome = factor(outcome, 
-                            levels = c("dec_sig", "dec_nonsig", "not_enough_info", "inc_nonsig", "inc_sig"),
-                            labels = c("No, more confident", "No, less confident", "Not calculated",
-                                       "Yes, less confident", "Yes, more confident")))
+                            levels = c("dec_sig", "dec_nonsig", "inc_nonsig", "inc_sig", "not_enough_info"),
+                            labels = c("No, more confident", "No, less confident",
+                                       "Yes, less confident", "Yes, more confident", "Not calculated")))
 
 
 # set up central coordinates and file paths for reserves ----
