@@ -87,19 +87,17 @@ ui <- page_fillable(
             card_header("How is marsh elevation changing? (Zoom in to see multiple stations at a single reserve!)",
                         # details popover
                         popover(
-                            actionButton("btn", "Map Details", 
+                            actionButton("btnStations", "Map Details", 
                                          icon = icon("map-location-dot"),
                                          width = 175,
                                          class = "small-btn"),
-                            div(
-                                p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
-                                p(strong("Clicking on a point"), "will open a sidebar with more details about the selected station: e.g., what is its name; how long has it been installed; is it keeping up with long- and near-term water level change."),
-                                p(strong("Each point"), "represents a single station. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term)."),
-                                br(),
-                                p("See the 'About' tab for more detail on data sources and calculations.")
-                            ),
+                            p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
+                            p(strong("Clicking on a point"), "will open a sidebar with more details about the selected station: e.g., what is its name; how long has it been installed; is it keeping up with long- and near-term water level change."),
+                            p(strong("Each point"), "represents a single station. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term)."),
+                            br(),
+                            p("See the 'About' tab for more detail on data sources and calculations."),
                             title = "Station-level map details",
-                            placement = "right"
+                            placement = "right")
                         ), # end popover
             ), # end header
             
@@ -116,12 +114,14 @@ ui <- page_fillable(
                     
                     div(
                         "Compare marsh elevations to: ",
-                        tooltip(
+                        popover(
                             bsicons::bs_icon("info-circle"),
-                            "Info about options."
+                            p("The rate of water level change is not constant. It varies by geographic location, and also by time period."),
+                            p("Here, ", strong("'long-term'"), "refers to the entire period of record for the water level station nearest the selected reserve/station; generally >50 years."),
+                            p(strong("'Near-term'"), "represents the rate of change for a 19-year period ending the year of the most recent marsh elevation measurements at the reserve/station.")
                         ),
                         radioButtons("panel2Param_sel", label = NULL,
-                                     choiceNames = c("Long-term sea level change",
+                                     choiceNames = c("Long-term water level change",
                                                      "Near-term water level change"),
                                      choiceValues = c("longterm",
                                                       "yr19"),
@@ -161,17 +161,16 @@ ui <- page_fillable(
             card_header("Pie charts represent the proportion of stations at a reserve falling into each category",
                         # details popover
                         popover(
-                            actionButton("btn", "Map Details", 
+                            actionButton("btnReserves", "Map Details", 
                                          icon = icon("map-location-dot"),
                                          width = 175,
                                          class = "small-btn"),
-                            div(
-                                p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
-                                p(strong("Clicking on a pie chart"), "will open a sidebar with more details about the selected reserve: how many stations are represented in this dashboard; how many are keeping up with water level change; details on the stations such as salinity range and dominant vegetation."),
-                                p(strong("Pie Charts"), "represent the collection of stations at a reserve. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term). The pie chart combines each of these results into one graphic."),
-                                br(),
-                                p("See the 'About' tab for more detail on data sources and calculations.")
-                            ),
+                            
+                            p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
+                            p(strong("Clicking on a pie chart"), "will open a sidebar with more details about the selected reserve: how many stations are represented in this dashboard; how many are keeping up with water level change; details on the stations such as salinity range and dominant vegetation."),
+                            p(strong("Pie Charts"), "represent the collection of stations at a reserve. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term). The pie chart combines each of these results into one graphic."),
+                            br(),
+                            p("See the 'About' tab for more detail on data sources and calculations."),
                             title = "Reserve-level map details",
                             placement = "right"
                         ), # end popover
@@ -190,9 +189,11 @@ ui <- page_fillable(
                     
                     div(
                         "Compare reserves to: ",
-                        tooltip(
+                        popover(
                             bsicons::bs_icon("info-circle"),
-                            "Information on choices"
+                            p("The rate of water level change is not constant. It varies by geographic location, and also by time period."),
+                            p("Here, ", strong("'long-term'"), "refers to the entire period of record for the water level station nearest the selected reserve/station; generally >50 years."),
+                            p(strong("'Near-term'"), "represents the rate of change for a 19-year period ending the year of the most recent marsh elevation measurements at the reserve/station.")
                         ),
                         radioButtons("panel1Param_sel", label = NULL,                # this was originally panel 1
                                      choiceNames = c("Long-term sea level change",
