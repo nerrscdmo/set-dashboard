@@ -97,11 +97,10 @@ ui <- page_fillable(
                             br(),
                             p("See the 'About' tab for more detail on data sources and calculations."),
                             title = "Station-level map details",
-                            placement = "right")
+                            placement = "right"
                         ), # end popover
             ), # end header
-            
-            
+
             
             # sidebar layout
             
@@ -167,8 +166,7 @@ ui <- page_fillable(
                                          class = "small-btn"),
                             
                             p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
-                            p(strong("Clicking on a pie chart"), "will open a sidebar with more details about the selected reserve: how many stations are represented in this dashboard; how many are keeping up with water level change; details on the stations such as salinity range and dominant vegetation."),
-                            p(strong("Pie Charts"), "represent the collection of stations at a reserve. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term). The pie chart combines each of these results into one graphic."),
+                            p(strong("Pie Charts"), "represent the collection of stations at a reserve. Clicking on a pie chart will open a sidebar with more information about the reserve. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color yellow. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term). The pie chart combines each of these results into one graphic."),
                             br(),
                             p("See the 'About' tab for more detail on data sources and calculations."),
                             title = "Reserve-level map details",

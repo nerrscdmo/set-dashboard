@@ -29,6 +29,7 @@ about_ui <- nav_panel(
         accordion_panel(
             title = "Trend Calculations",
             p("only calculated when >4.5 yrs of data; linear mixed models; link to SETr for more details"),
+            p("water level trends calculated using AR1 model, as NOAA uses. Made sure long-term estimates matched what was on the NWLON station's page, subsetted to 19 yrs and calculated near-term change using the same methods.")
             
         ),
         
