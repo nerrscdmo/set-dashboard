@@ -1,3 +1,53 @@
+
+
+# about description ----
+
+about_ui <- nav_panel(
+    "About",
+    full_screen = FALSE,
+    
+    # card_header("Tips and Tricks",
+    #             tooltip(
+    #                 bsicons::bs_icon("info-circle"),
+    #                 "Info here"
+    #             ) # end tooltip
+    # ), # end header
+
+    h5("Expand a section below for more detail."),
+    
+    accordion(
+        id = "explanation_accordion",
+        open = FALSE,
+        
+        accordion_panel(
+            title = "Data source(s) and Definitions",
+            p("here, discuss the long-term/near-term distinction; the 'more-confident/less-confident' definitions"),
+            p("things like 'water level data came from NWLON stations'; links to SETr project; acknowledge participating reserves")
+            
+        ),
+        
+        accordion_panel(
+            title = "Trend Calculations",
+            p("only calculated when >4.5 yrs of data; linear mixed models; link to SETr for more details"),
+            
+        ),
+        
+        accordion_panel(
+            title = "Using the Maps",
+            p("what options can you modify; sidebars will open up when something is clicked on; what's in the sidebars; how to expand accordions; how to pop out the graphs"),
+            
+        )
+        
+    ),  # end accordion
+    
+    
+    hr(),
+    p("This app was developed in support of the National Estuarine Research Reserve System (NERRS), a partnership program between the National Oceanic and Atmospheric Administration and coastal states."),
+    p("Funding was provided by NOAA under a subaward from [NA23NOS4200321] to the University of South Carolina /", tags$a("NERRS Centralized Data Management Office", href = "https://cdmo.baruch.sc.edu", target = "_blank"), "."),
+    p("Developed by ", tags$a("Catbird Stats, LLC", href = "https://www.catbirdstats.com", target = "_blank"), ". For questions about this app, please contact ", tags$a("kim@catbirdstats.com", href = "mailto:kim@catbirdstats.com"), ".")
+
+)
+
 # description text ----
 # store as variables so the wording can be used in multiple places  
 data_preview_desc1 <- "View, sort, filter, and search the raw data in the 'Cover' worksheet of your file. This table is laid out exactly the same as your original spreadsheet." 
@@ -48,42 +98,6 @@ correlation_scatterplots_desc2 <- HTML(
 )
 
 table_interactivity_desc <- "This table is interactive. Columns can be sorted by clicking on their name or filtered by typing into the box below the name."
-
-
-# about description ----
-
-about_ui <- nav_panel(
-    "About",
-    full_screen = FALSE,
-    
-    card_header("Tips and Tricks",
-                tooltip(
-                    bsicons::bs_icon("info-circle"),
-                    "Info here"
-                ) # end tooltip
-    ), # end header
-
-    p("TIME FRAME OF THE DATA"),
-    
-    
-    h4("Definitions:"),
-    p("here, discuss the long-term/near-term distinction; the 'more-confident/less-confident' definitions"),
-    
-    
-    h4("Using the maps:"),
-    p("what options can you modify; sidebars will open up when something is clicked on; what's in the sidebars; how to expand accordions; how to pop out the graphs"),
-    
-    
-    h4("Data Sources and Additional Details:"),
-    p("things like 'water level data came from NWLON stations'; links to SETr project; acknowledge participating reserves"),
-    
-    
-    hr(),
-    p("This app was developed in support of the National Estuarine Research Reserve System (NERRS), a partnership program between the National Oceanic and Atmospheric Administration and coastal states."),
-    p("Funding was provided by NOAA under a subaward from [NA23NOS4200321] to the University of South Carolina /", tags$a("NERRS Centralized Data Management Office", href = "https://cdmo.baruch.sc.edu", target = "_blank"), "."),
-    p("Developed by ", tags$a("Catbird Stats, LLC", href = "https://www.catbirdstats.com", target = "_blank"), ". For questions about this app, please contact ", tags$a("kim@catbirdstats.com", href = "mailto:kim@catbirdstats.com"), ".")
-
-)
 
 
 # data/technical details ----
