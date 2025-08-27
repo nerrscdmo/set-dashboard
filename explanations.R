@@ -29,7 +29,23 @@ about_ui <- nav_panel(
         accordion_panel(
             title = "Trend Calculations",
             p("only calculated when >4.5 yrs of data; linear mixed models; link to SETr for more details"),
-            p("water level trends calculated using AR1 model, as NOAA uses. Made sure long-term estimates matched what was on the NWLON station's page, subsetted to 19 yrs and calculated near-term change using the same methods.")
+            p("water level trends calculated using AR1 model, as NOAA uses. Made sure long-term estimates matched what was on the NWLON station's page, subsetted to 19 yrs and calculated near-term change using the same methods."),
+            
+            br(),
+            
+            h5("When trends were calculated"),
+            p("trends only calculated when a station had 5 or more measurements over 4.5 years or longer."),
+            br(),
+            
+            h5("Comparisons to water level change"),
+            p("Rates of elevation change at each SET are compared to rates of water level change (SLR = long-term sea level rise; 19yr = water level change over a 19 year period) by investigating whether confidence intervals overlap. This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs), using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001)."),
+            br(),
+            
+            h5("How trends were calculated"),
+            p("Rates of elevation change at each SET were generated using random-intercept linear mixed models. See Zuur et al. (2009) and Cahoon et al. (2019) for details."),
+            p("Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects; and date is considered a numeric covariate."),
+            p("For this analysis, models were fit in R, using the `lme()` function in the `nlme` package (Pinheiro et al. 2019). Confidence intervals were generated using the `intervals()` function, also in the `nlme` package."),
+            p("All calculations generated output in *mm/day* and these rates were converted to *mm/yr* by multiplying by 365.25, to account for leap years. ")
             
         ),
         
