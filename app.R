@@ -81,7 +81,6 @@ ui <- page_fillable(
         # panel 1: SET-level ----
         nav_panel(
             "Station-level",
-            # show all SETs here, with the up/down arrows
             full_screen = TRUE,
             
             card_header("How is marsh elevation changing? (Zoom in to see multiple stations at a single reserve!)",
