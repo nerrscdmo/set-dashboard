@@ -293,7 +293,7 @@ server <- function(input, output, session) {
                 weight = 1,
                 fillColor = ~leaflet_colors(dir_slr),
                 fillOpacity = 0.5,
-                radius = 8
+                radius = 7
             ) |> 
             addLegend(colors = cols_slr,
                       labels = names(cols_slr),
@@ -325,9 +325,14 @@ server <- function(input, output, session) {
                               "Are marshes keeping up with <br>the rate of water level change <br>over the last 19 years?")
         
         
+        # set up the leaflet proxy piece
         m <- leafletProxy("map1") |> 
             clearMarkers() |> 
-            clearControls() |> 
+            clearControls() 
+        
+        current_reserve_id <- selected_reserve()
+        
+        m <- m |> 
             addMarkers(
                 data = comp_dat,
                 lng = ~lon,
@@ -342,6 +347,29 @@ server <- function(input, output, session) {
                       position = "bottomleft",
                       opacity = 0.9,
                       title = legendtitle)
+        
+        # if a reserve has been selected, make a circle to go around it
+        # If a station is selected, add a highlight circle around its marker
+        if(!is.null(current_reserve_id)) {
+            # Find the selected station in the data
+            selected_row <- which(comp_dat$reserve == current_reserve_id)
+            
+            if(length(selected_row) > 0) {
+                # Add a circle marker underneath the icon for the selected station
+                selected_data <- comp_dat[selected_row, ]
+                
+                m <- m |> addCircleMarkers(
+                    data = selected_data,
+                    lng = ~lon,
+                    lat = ~lat,
+                    radius = 15,  # Larger than the icon to create a highlight effect
+                    color = "#E67E22",  # Orange outline
+                    weight = 5,
+                    opacity = 1.0,
+                    fillOpacity = 0  # Transparent fill
+                )
+            }
+        }
         
         m
         
@@ -366,26 +394,53 @@ server <- function(input, output, session) {
                               "Are marshes keeping up with <br>long-term sea level rise?",
                               "Are marshes keeping up with <br>the rate of water level change <br>over the last 19 years?")
         
+        # see if a station has been selected
+        current_station_id <- selected_station()
         
-        m <- leafletProxy("map2") |> 
-            clearMarkers() |> 
-            clearControls() |> 
-            addCircleMarkers(
-                data = comp_dat,
-                lng = ~long,
-                lat = ~lat,
-                layerId = ~Res_SET,
-                color = "black",
-                weight = 1,
-                fillColor = ~leaflet_colors(outcome),
-                fillOpacity = 0.5,
-                radius = 8
-            ) |> 
-            addLegend(colors = cols_slr,
-                      labels = names(cols_slr),
-                      position = "bottomleft",
-                      opacity = 0.9,
-                      title = legendtitle)
+        # if no station selected, normal map:
+        if(is.null(current_station_id)){
+            m <- leafletProxy("map2") |> 
+                clearMarkers() |> 
+                clearControls() |> 
+                addCircleMarkers(
+                    data = comp_dat,
+                    lng = ~long,
+                    lat = ~lat,
+                    layerId = ~Res_SET,
+                    color = "black",
+                    weight = 1,
+                    fillColor = ~leaflet_colors(outcome),
+                    fillOpacity = 0.5,
+                    radius = 7
+                ) |>
+                addLegend(colors = cols_slr,
+                          labels = names(cols_slr),
+                          position = "bottomleft",
+                          opacity = 0.9,
+                          title = legendtitle)
+        } else {
+            # make the selected station stand out
+            m <- leafletProxy("map2") |> 
+                clearMarkers() |> 
+                clearControls() |> 
+                addCircleMarkers(
+                    data = comp_dat,
+                    lng = ~long,
+                    lat = ~lat,
+                    layerId = ~Res_SET,
+                    fillColor = ~leaflet_colors(outcome),
+                    color = ~ifelse(Res_SET == current_station_id, "#E67E22", "black"),
+                    weight = ~ifelse(Res_SET == current_station_id, 4, 1),
+                    opacity = ~ifelse(Res_SET == current_station_id, 1.0, 0.7),
+                    fillOpacity = ~ifelse(Res_SET == current_station_id, 0.9, 0.5),
+                    radius = ~ifelse(Res_SET == current_station_id, 10, 7)
+                ) |>
+                addLegend(colors = cols_slr,
+                          labels = names(cols_slr),
+                          position = "bottomleft",
+                          opacity = 0.9,
+                          title = legendtitle)
+        }
         
         m
         
