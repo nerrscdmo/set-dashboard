@@ -902,7 +902,7 @@ server <- function(input, output, session) {
         
         plot_set_distn_pair(p_allSETs_longterm, p_allSETs_19yr,
                             legend.position = "right") +
-            plot_annotation(subtitle = paste0("Compared to which water level change:\n(n = ", nrow(filtered_sets()), " SETs in this view)"),
+            plot_annotation(subtitle = paste0("Compared to which water level change:\n(n = ", nrow(filtered_sets()), " stations)"),
                             theme = theme(plot.title.position = "panel",
                                           plot.subtitle = element_text(size = rel(0.9)))) &
             theme(legend.text = element_text(size = rel(0.8)),
