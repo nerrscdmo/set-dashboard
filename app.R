@@ -91,7 +91,10 @@ ui <- page_fillable(
                                          icon = icon("map-location-dot"),
                                          width = 175,
                                          class = "small-btn"),
+                            p("This map shows how each station's elevation is changing, as compared to water level change."),
+                            br(),
                             p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
+                            br(),
                             p(strong("Clicking on a point"), "will open a sidebar with more details about the selected station: e.g., what is its name; how long has it been installed; is it keeping up with long- and near-term water level change."),
                             p(strong("Each point"), "represents a single station. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color gray Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term)."),
                             br(),
@@ -127,20 +130,6 @@ ui <- page_fillable(
                                      selected = "longterm")
                     ),
                     
-                    # choose which values to see
-                    # div(class = "two-col-checks",
-                    #     checkboxGroupInput("trendShow_sel", "Select results to include:",
-                    #                        choices = c("increasing",
-                    #                                    "decreasing",
-                    #                                    "no trend",
-                    #                                    "not calculated"),
-                    #                        selected = c("increasing",
-                    #                                     "decreasing",
-                    #                                     "no trend",
-                    #                                     "not calculated"),
-                    #                        inline = TRUE)
-                    # )
-                    
                     
                 ), # end sidebar
                 
@@ -164,8 +153,10 @@ ui <- page_fillable(
                                          icon = icon("map-location-dot"),
                                          width = 175,
                                          class = "small-btn"),
-                            
+                            p("This map combines results from all included stations within each reserve to a single pie chart."),
+                            br(),
                             p(strong("What do we want to see?"), "We want to see more blue than red: we want marshes to be able to keep up with increasing water levels."),
+                            br(),
                             p(strong("Pie Charts"), "represent the collection of stations at a reserve. Clicking on a pie chart will open a sidebar with more information about the reserve. A trend has been calculated for each station with enough data. Stations without enough data are labeled 'not calculated' and are represented by the color gray. Each station with a calculated trend was categorized based on whether the rate exceeded or did not exceed the selected rate of water level change (long-term or near-term). The pie chart combines each of these results into one graphic."),
                             br(),
                             p("See the 'About' tab for more detail on data sources and calculations."),
