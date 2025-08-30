@@ -30,9 +30,22 @@ about_ui <- nav_panel(
         
         accordion_panel(
             title = "Data source(s) and Definitions",
-            p("here, discuss the long-term/near-term distinction; the 'more-confident/less-confident' definitions"),
-            p("things like 'water level data came from NWLON stations'; links to SETr project; acknowledge participating reserves")
             
+            h5("Data Sources"),
+
+            p("Marsh elevation data files contributed by participating reserves during the",
+              tags$a("SETr project", href = "https://nerrssciencecollaborative.org/project/Cressman18", target = "_blank"),
+              "were processed using code in this", tags$a("set-data-processing repository", href = "https://github.com/nerrscdmo/set-data-processing", target = "_blank"), "."),
+            p("The time period included in this dashboard varies by reserve but the most recent data is from ~2017."),
+            br(),
+            p("Water level change rates were also calculated during the SETr project. Data for water level change calculations were obtained from the nearest", 
+              tags$a("NOAA NWLON station", href = "https://tidesandcurrents.noaa.gov/stations.html?type=Water+Levels", target = "_blank"), 
+              "identified by each reserve."),
+            br(),
+            
+            h5("Variable and Category definitions"),
+            p("Station is a SET"),
+            p("long-term/near-term distinction; the 'more-confident/less-confident' definitions")
         ),
         
         accordion_panel(
