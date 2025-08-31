@@ -37,37 +37,43 @@ about_ui <- nav_panel(
               tags$a("SETr project", href = "https://nerrssciencecollaborative.org/project/Cressman18", target = "_blank"),
               "were processed using code in this", tags$a("set-data-processing repository", href = "https://github.com/nerrscdmo/set-data-processing", target = "_blank"), "."),
             p("The time period included in this dashboard varies by reserve but the most recent data is from ~2017."),
-            br(),
-            p("Water level change rates were also calculated during the SETr project. Data for water level change calculations were obtained from the nearest", 
+            p("Data for water level change calculations were obtained from the nearest", 
               tags$a("NOAA NWLON station", href = "https://tidesandcurrents.noaa.gov/stations.html?type=Water+Levels", target = "_blank"), 
               "identified by each reserve."),
-            br(),
-            
+
             h5("Variable and Category definitions"),
-            p("Station is a SET"),
-            p("long-term/near-term distinction; the 'more-confident/less-confident' definitions")
+            p(strong(em("Station")), "in this dashboard represents an individual Surface Elevation Table, or SET."),
+            p(strong("Water Level Change categories."), "Water level change is not constant, and is in most areas increasing. Shorter time periods may be more relevant to marsh changes. 
+              For these reasons, we compare marsh elevation change to two separate rates of water level change."),
+            tags$ul(
+                tags$li(strong(em("Long-term")), "refers to the entire period of record at a NOAA NWLON station. For most stations in this app, the period of record is at least 50 years."),
+                tags$li(strong(em("Near-term")), "refers to a period of 19 years, ending the last year of measurements at the nearest marsh elevation station.
+                        19 years was chosen because water levels undergo an approximately 19.6 year cycle (the 'metonic cycle'), 
+                        and trends over shorter time periods than this cycle may be misleading, as they may really only describe a part of the normal cycle.")
+            ),
+
+            p(strong("Categories in comparison to water-level change."), "Because trends for marsh elevation and water level change were calculated using different methods, there is not a direct method to test whether they are different at a p<0.05 level. 
+              So comparisons here were made based on whether the confidence intervals overlapped."),
+            tags$ul(
+                tags$li(strong(em("More Confident")), "means that the confidence interval of marsh elevation change at the station did NOT overlap with the confidence interval of water level change."),
+                tags$li(strong(em("Less Confident")), "means that the confidence interval of marsh elevation change at the station DID overlap with the confidence interval of water level change.")
+            )
         ),
         
         accordion_panel(
-            title = "Trend Calculations",
-            p("only calculated when >4.5 yrs of data; linear mixed models; link to SETr for more details"),
-            p("water level trends calculated using AR1 model, as NOAA uses. Made sure long-term estimates matched what was on the NWLON station's page, subsetted to 19 yrs and calculated near-term change using the same methods."),
+            title = "Trend Calculations and Comparisons to Water Level Change",
+            p("Marsh elevation trends at a station were calculated, via linear mixed model (see below for more detail), only if that station had at least 5 recorded measurements over at least 4.5 years. Otherwise a station was assigned the result category of 'not calculated' and represented on the maps in gray."),
+            p("Water level trends were generated based on the nearest NOAA NWLON station to each station. Two rates of change were calculated for water levels: long-term, or the entire period of record; and near-term, or a 19-year period ending with the most recent year of marsh elevation measurements at a station."),
+            p("Rates of elevation change at each station were compared to rates of water level change by identifying whether the 95% confidence intervals of each rate overlapped. This method of comparison was chosen because different methods were used to calculate rates for water level change and marsh elevation change, using data from different sources."),
+            p("Each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals", strong("are not equivalent to conducting a formal hypothesis test"), "for a difference at the 5% level (Schenker and Gentleman, 2001)."),
+
             
-            br(),
-            
-            h5("When trends were calculated"),
-            p("trends only calculated when a station had 5 or more measurements over 4.5 years or longer."),
-            br(),
-            
-            h5("Comparisons to water level change"),
-            p("Rates of elevation change at each SET are compared to rates of water level change (SLR = long-term sea level rise; 19yr = water level change over a 19 year period) by investigating whether confidence intervals overlap. This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs), using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001)."),
-            br(),
-            
-            h5("How trends were calculated"),
-            p("Rates of elevation change at each SET were generated using random-intercept linear mixed models. See Zuur et al. (2009) and Cahoon et al. (2019) for details."),
-            p("Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects; and date is considered a numeric covariate."),
+            h5("Additional Detail"),
+            p("Rates of elevation change at each station were generated using random-intercept linear mixed models. Pin height was the response variable; date was used as a numeric fixed effect; and pin nested within arm was the random effect."),
             p("For this analysis, models were fit in R, using the `lme()` function in the `nlme` package (Pinheiro et al. 2019). Confidence intervals were generated using the `intervals()` function, also in the `nlme` package."),
-            p("All calculations generated output in *mm/day* and these rates were converted to *mm/yr* by multiplying by 365.25, to account for leap years. ")
+            p("All calculations generated output in *mm/day* and these rates were converted to *mm/yr* by multiplying by 365.25, to account for leap years. "),
+
+            p("Water level trends were calculated using an AR1 model on detrended monthly water level data, as per NOAA methodology. NOAA does not calculate trends on a time period less than the period of record, so we checked that long-term estimates from our calculations matched what NOAA provided for a station, then subsetted the same data to 19 yrs and calculated near-term change using the same methods.")
             
         )
         
@@ -76,8 +82,8 @@ about_ui <- nav_panel(
     
     hr(),
     p("This app was developed in support of the National Estuarine Research Reserve System (NERRS), a partnership program between the National Oceanic and Atmospheric Administration and coastal states."),
-    p("Funding was provided by NOAA under a subaward from [NA23NOS4200321] to the University of South Carolina /", tags$a("NERRS Centralized Data Management Office", href = "https://cdmo.baruch.sc.edu", target = "_blank"), "."),
-    p("Developed by ", tags$a("Catbird Stats, LLC", href = "https://www.catbirdstats.com", target = "_blank"), ". For questions about this app, please contact ", tags$a("kim@catbirdstats.com", href = "mailto:kim@catbirdstats.com"), ".")
-
+    p("Developed by ", tags$a("Catbird Stats, LLC", href = "https://www.catbirdstats.com", target = "_blank"), "under a subaward from NOAA [NA23NOS4200321] to the University of South Carolina /", tags$a("NERRS Centralized Data Management Office", href = "https://cdmo.baruch.sc.edu", target = "_blank"), "."),
+    p("For questions about this app, please contact ", tags$a("kim@catbirdstats.com", href = "mailto:kim@catbirdstats.com"), ".")
+    
 )
 
