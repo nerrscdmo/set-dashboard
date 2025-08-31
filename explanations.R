@@ -66,11 +66,17 @@ about_ui <- nav_panel(
             p("Water level trends were generated based on the nearest NOAA NWLON station to each station. Two rates of change were calculated for water levels: long-term, or the entire period of record; and near-term, or a 19-year period ending with the most recent year of marsh elevation measurements at a station."),
             p("Rates of elevation change at each station were compared to rates of water level change by identifying whether the 95% confidence intervals of each rate overlapped. This method of comparison was chosen because different methods were used to calculate rates for water level change and marsh elevation change, using data from different sources."),
             p("Each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals", strong("are not equivalent to conducting a formal hypothesis test"), "for a difference at the 5% level (Schenker and Gentleman, 2001)."),
+            p(strong("Categories in comparison to water-level change."), "Because trends for marsh elevation and water level change were calculated using different methods, there is not a direct method to test whether they are different at a p<0.05 level. 
+              So comparisons here were made based on whether the confidence intervals overlapped."),
+            tags$ul(
+                tags$li(strong(em("More Confident")), "means that the confidence interval of marsh elevation change at the station did NOT overlap with the confidence interval of water level change."),
+                tags$li(strong(em("Less Confident")), "means that the confidence interval of marsh elevation change at the station DID overlap with the confidence interval of water level change.")
+            ),
 
             
             h5("Additional Detail"),
             p("Rates of elevation change at each station were generated using random-intercept linear mixed models. Pin height was the response variable; date was used as a numeric fixed effect; and pin nested within arm was the random effect."),
-            p("For this analysis, models were fit in R, using the `lme()` function in the `nlme` package (Pinheiro et al. 2019). Confidence intervals were generated using the `intervals()` function, also in the `nlme` package."),
+            p("For this analysis, models were fit in R, using the `lme()` function in the `nlme` package. Confidence intervals were generated using the `intervals()` function, also in the `nlme` package."),
             p("All calculations generated output in *mm/day* and these rates were converted to *mm/yr* by multiplying by 365.25, to account for leap years. "),
 
             p("Water level trends were calculated using an AR1 model on detrended monthly water level data, as per NOAA methodology. NOAA does not calculate trends on a time period less than the period of record, so we checked that long-term estimates from our calculations matched what NOAA provided for a station, then subsetted the same data to 19 yrs and calculated near-term change using the same methods.")
