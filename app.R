@@ -681,7 +681,8 @@ server <- function(input, output, session) {
         # filter some station information table; name it 'tbl'
         tbl <- set_details |> 
             filter(Res_SET == selected_station()) |> 
-            mutate(rate2 = glue("{round(slr_rate, 2)} (95% CI: {round(slr_CI_low, 2)}, {round(slr_CI_high, 2)})"),
+            mutate(setrate = glue("{round(rate, 2)} (95% CI: {round(CI_low, 2)}, {round(CI_high, 2)})"),
+                   rate2 = glue("{round(slr_rate, 2)} (95% CI: {round(slr_CI_low, 2)}, {round(slr_CI_high, 2)})"),
                    rate19yr = glue("{round(slr_19yr, 2)} (95% CI: {round(yr19_CI_low, 2)}, {round(yr19_CI_high, 2)})"),
                    start_yr = lubridate::year(start_date),
                    end_yr = lubridate::year(end_date),
@@ -691,6 +692,7 @@ server <- function(input, output, session) {
                    "SET Name" = user_friendly_set_name,
                    "SET Type" = set_type,
                    "Monitoring Time Period" = time_series,
+                   "Rate of marsh elevation change (mm/yr)" = setrate,
                    "Rate of water level change, long-term (mm/yr)" = rate2,
                    "Keeping up with long-term water level change?" = dir_slr,
                    "Rate of water level change, near-term (mm/yr)" = rate19yr,
